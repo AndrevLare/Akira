@@ -1,50 +1,93 @@
-# Welcome to your Expo app 👋
+# Akira
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A smart flashcard app for students based on the SM-2 spaced repetition algorithm. Akira helps you retain information longer by scheduling reviews at optimal intervals.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Spaced Repetition (SM-2)** - Scientifically proven algorithm to optimize learning retention
+- **Push-to-Learn** - Respond to flashcards directly from notifications without opening the app
+- **Dark/Light Mode** - Automatic theme switching based on system preferences
+- **Cross-Platform** - Runs on iOS, Android, and Web
 
-   ```bash
-   npm install
-   ```
+## Get Started
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Install dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Start the app
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Then scan the QR code with Expo Go (mobile) or press:
+- `a` - Open on Android emulator
+- `i` - Open on iOS simulator
+- `w` - Open in web browser
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Development
 
-## Join the community
+### Commands
 
-Join our community of developers creating universal apps.
+```bash
+npm install              # Install dependencies
+npm start                # Start Expo dev server
+npm run android          # Run on Android emulator
+npm run ios              # Run on iOS simulator
+npm run web              # Run on web browser
+npm run lint             # Run ESLint
+npm test                 # Run tests
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Tech Stack
+
+- **Frontend:** React Native with Expo (Managed Workflow)
+- **Language:** TypeScript (strict mode)
+- **Routing:** expo-router (file-based routing)
+- **Styling:** NativeWind (Tailwind CSS for mobile)
+- **Database:** Supabase (PostgreSQL) + AsyncStorage for local persistence
+- **Notifications:** Expo Notifications (Local Scheduling)
+- **Algorithm:** SM-2 (SuperMemo 2) adapted for JavaScript
+
+### Project Structure
+
+```
+P2L-App/
+├── app/                 # File-based routes (expo-router)
+│   ├── (tabs)/          # Tab navigation screens
+│   ├── _layout.tsx      # Root layout with Stack navigator
+│   └── +not-found.tsx   # 404 page
+├── components/          # Reusable UI components
+│   ├── themed-text.tsx  # Theme-aware text component
+│   ├── themed-view.tsx  # Theme-aware view component
+│   ├── external-link.tsx
+│   └── ui/              # UI primitives (icons, collapsible, etc.)
+├── constants/           # App-wide constants
+│   └── theme.ts         # Color palettes for light/dark modes
+├── hooks/               # Custom React hooks
+│   ├── use-color-scheme.ts
+│   └── use-theme-color.ts
+└── utils/               # Helper functions
+```
+
+### Code Conventions
+
+- **Language:** Spanish for comments, English for variable/function names
+- **Components:** Functional components with Hooks
+- **TypeScript:** Strict typing enabled
+- **Formatting:** Prettier with trailing spaces in files
+- **ESLint:** Auto-fix on save (VS Code)
+
+## Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [Expo Router Documentation](https://docs.expo.dev/router/introduction/)
+- [React Native Documentation](https://reactnative.dev/)
+
+## Join the Community
+
+- [Expo on GitHub](https://github.com/expo/expo)
+- [Expo Discord](https://chat.expo.dev)
