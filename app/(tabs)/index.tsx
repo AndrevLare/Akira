@@ -1,98 +1,125 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { View } from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ArrowRight, Fire, Fire_2 } from "@/components/global/icons";
+import { Text } from "@/components/global/Text";
+import CircularProgress from "@/components/ProgressBar";
+import ThemeToggle from "@/components/ThemeToggle";
+import AkiraButton from "@/components/Button";
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+import { Link } from "expo-router";
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+import { useState, useEffect } from "react";
+
+interface DashboardDate {
+  day: string;
+  month: string;
+  date: number;
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default function HomeScreen() {
+  // Greeting
+  const [name, setName] = useState("Gorje");
+  const [greeting, setGreeting] = useState("");
+  const [date, setDate] = useState<DashboardDate>({
+    day: "",
+    month: "",
+    date: 0,
+  });
+
+  // Dashboard Card
+  const [reviewDebt, setReviewDebt] = useState(44);
+  const [totalDaily, setTotalDaily] = useState(77);
+
+  const [progress, setProgress] = useState(0);
+
+  // Streak
+  const [streak, setStreak] = useState(12);
+
+  useEffect(() => {
+    if (totalDaily > 0) {
+      setProgress(Math.round(((totalDaily - reviewDebt) / totalDaily) * 100));
+    } else {
+      setProgress(0);
+    }
+  }, [reviewDebt, totalDaily]);
+
+  useEffect(() => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      setGreeting("Morning");
+    } else if (hours < 18) {
+      setGreeting("Afternoon");
+    } else {
+      setGreeting("Evening");
+    }
+  }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      month: "short",
+    };
+    const formatter = new Intl.DateTimeFormat("en-US", options);
+    const parts = formatter.formatToParts(now);
+    const day = parts.find((part) => part.type === "weekday")?.value || "";
+    const month = parts.find((part) => part.type === "month")?.value || "";
+    const date = now.getDate();
+
+    setDate({ day, month, date });
+  }, []);
+
+  return (
+    <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG">
+      <View className="mx-[24px] mt-[48px]">
+        <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px]">
+          {date.day.toUpperCase()} · {date.month.toUpperCase()} {date.date}
+        </Text>
+        <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
+          {`Good ${greeting}, \n${name}.`}
+        </Text>
+      </View>
+      <ThemeToggle className="absolute top-[54px] right-[32px]" />
+      <View className="flex-row items-center space-between bg-akira-pureWhite dark:bg-akira-lightDark p-[1rem] mx-[2rem] mt-[1.5rem] rounded-3xl shadow border border-akira-boxBorder dark:border-akira-boxDarkBorder p-5">
+        <CircularProgress percentage={progress} size={100} strokeWidth={10} />
+        <View className="ml-[2rem] flex">
+          <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest">
+            REVIEW DEBT
+          </Text>
+          <Text className="text-akira-darkText font-AK_data text-[1.5rem]">
+            <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3.25rem]">
+              {reviewDebt}
+            </Text>{" "}
+            / {totalDaily}
+          </Text>
+          <Text className="text-akira-darkText font-AK_data font-semibold">
+            {totalDaily - reviewDebt} done · {reviewDebt} to go{" "}
+          </Text>
+        </View>
+      </View>
+      <View className="m-[2rem] p-[1rem] bg-akira-darkWhite dark:bg-akira-altLightDark rounded-3xl shadow flex-row justify-start items-center">
+        <View className="p-[10px] bg-akira-lightFire rounded-xl">
+          <Fire_2 />
+        </View>
+        <View className="ml-[1rem] flex-1 gap-[4px]">
+          <Text className="text-akira-ink dark:text-akira-paper font-AK_UI font-bold tracking-widest">
+            YOUR STREAK
+          </Text>
+          <Text className="text-akira-darkText font-AK_data text-[1.25rem]">
+            {streak} days <Fire className="inline" size={16} />
+          </Text>
+          <Text className="text-akira-darkText font-AK_UI tracking-widest">
+            You're on fire!!
+          </Text>
+        </View>
+        <ArrowRight size={24} fill="#9f9f9f" />
+      </View>
+      <AkiraButton onPress={() => console.log("Start review session")}>
+        <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-bold tracking-widest text-[1.25rem]">
+          Start review session
+        </Text>
+        <ArrowRight fill="#9c9789" />
+      </AkiraButton>
+    </View>
+  );
+}
