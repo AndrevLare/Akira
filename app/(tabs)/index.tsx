@@ -1,10 +1,16 @@
-import { View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
+import { useColorScheme } from "nativewind";
 
-import { ArrowRight, Fire, Fire_2 } from "@/components/global/icons";
+import {
+  ArrowRight,
+  Fire,
+  Fire_2,
+  FullArrowRight,
+} from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
-import CircularProgress from "@/components/ProgressBar";
-import ThemeToggle from "@/components/ThemeToggle";
-import AkiraButton from "@/components/Button";
+import CircularProgress from "@/components/UI/ProgressBar";
+import ThemeToggle from "@/components/UI/ThemeToggle";
+import AkiraButton from "@/components/UI/Button";
 
 import { Link } from "expo-router";
 
@@ -17,6 +23,20 @@ interface DashboardDate {
 }
 
 export default function HomeScreen() {
+  // Other
+  const { width } = useWindowDimensions();
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  useEffect(() => {
+    // runs at the start of the app to make the stupidiest fix in the history of programming: force the app to load with the correct height changing the theme two times.
+    try {
+      toggleColorScheme();
+      toggleColorScheme();
+    } catch (error) {
+      console.error("Error toggling color scheme:", error);
+    }
+  }, []);
+
   // Greeting
   const [name, setName] = useState("Gorje");
   const [greeting, setGreeting] = useState("");
@@ -92,7 +112,9 @@ export default function HomeScreen() {
             </Text>{" "}
             / {totalDaily}
           </Text>
-          <Text className="text-akira-darkText font-AK_data font-semibold">
+          <Text
+            className={`text-akira-darkText font-AK_data font-semibold flex-1 ${width > 390 ? "" : "text-[3vw]"}`}
+          >
             {totalDaily - reviewDebt} done · {reviewDebt} to go{" "}
           </Text>
         </View>
@@ -115,10 +137,10 @@ export default function HomeScreen() {
         <ArrowRight size={24} fill="#9f9f9f" />
       </View>
       <AkiraButton onPress={() => console.log("Start review session")}>
-        <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-bold tracking-widest text-[1.25rem]">
+        <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
           Start review session
         </Text>
-        <ArrowRight fill="#9c9789" />
+        <FullArrowRight />
       </AkiraButton>
     </View>
   );

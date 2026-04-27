@@ -39,11 +39,16 @@
       ],
       "expo-font",
       "expo-image",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "androidStatusBar": {
+      "translucent": true,
+      "backgroundColor": "#00000000"
     }
   }
 }

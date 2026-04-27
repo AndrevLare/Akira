@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useColorScheme } from "nativewind";
 import Svg, { Path } from "react-native-svg";
 
 // Definimos una interfaz para las props (opcional pero recomendado en TS)
@@ -75,4 +76,22 @@ const Sun = ({ size = 20, fill = "#0D0D0D", ...props }: IconProps) => (
   </Svg>
 );
 
-export { Fire, Fire_2, ArrowRight, Sun, Moon };
+const FullArrowRight = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Svg
+      fill={!isDarkMode ? `#f4f2ed` : `#141414`}
+      width={size}
+      height={size}
+      viewBox="0 0 15 15"
+      {...props}
+    >
+      <Path d="M8.29289 2.29289C8.68342 1.90237 9.31658 1.90237 9.70711 2.29289L14.2071 6.79289C14.5976 7.18342 14.5976 7.81658 14.2071 8.20711L9.70711 12.7071C9.31658 13.0976 8.68342 13.0976 8.29289 12.7071C7.90237 12.3166 7.90237 11.6834 8.29289 11.2929L11 8.5H1.5C0.947715 8.5 0.5 8.05228 0.5 7.5C0.5 6.94772 0.947715 6.5 1.5 6.5H11L8.29289 3.70711C7.90237 3.31658 7.90237 2.68342 8.29289 2.29289Z" />
+    </Svg>
+  );
+};
+
+export { Fire, Fire_2, ArrowRight, Sun, Moon, FullArrowRight };
