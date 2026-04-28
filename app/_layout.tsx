@@ -13,6 +13,8 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 
+import { createTables } from "@/SRC/database/db";
+
 // Evita que la pantalla de carga se oculte antes de tiempo
 SplashScreen.preventAutoHideAsync();
 
@@ -44,6 +46,10 @@ export default function RootLayout() {
     "AK-UI": require("../assets/Fonts/Geist/Geist-VariableFont_wght.ttf"),
     "AK-data": require("../assets/Fonts/Geist_Mono/GeistMono-VariableFont_wght.ttf"),
   });
+
+  useEffect(() => {
+    createTables();
+  }, []);
 
   useEffect(() => {
     if (loaded || error) {
