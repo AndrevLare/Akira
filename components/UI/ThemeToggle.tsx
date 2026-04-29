@@ -13,7 +13,7 @@ export default function ThemeToggle(props: any) {
       {...props} // Ahora ya existe porque lo recibimos en la función
       onPress={toggleColorScheme} // NativeWind ya maneja el cambio internamente
       underlayColor={isDarkMode ? "#00000000" : "#00000000"} // Color al presionar
-      className={`p-4 rounded-full border border-akira-ink dark:border-akira-paper items-center justify-center self-start ${props.className}`}
+      className={`rounded-full border border-akira-ink dark:border-akira-paper items-center justify-center self-start ${props.className}`}
       {...props}
     >
       {!isDarkMode ? (

@@ -28,7 +28,7 @@ export const createTables = async () => {
 
     -- time control
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    next_review_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    next_review_at TIMESTAMP,
 
     FOREIGN KEY (deck_id) REFERENCES deck(id) ON DELETE CASCADE
   );

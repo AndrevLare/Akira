@@ -1,5 +1,6 @@
 import { useWindowDimensions, View } from "react-native";
 import { useColorScheme } from "nativewind";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   ArrowRight,
@@ -10,11 +11,12 @@ import {
 import { Text } from "@/components/global/Text";
 import CircularProgress from "@/components/UI/ProgressBar";
 import ThemeToggle from "@/components/UI/ThemeToggle";
-import AkiraButton from "@/components/UI/Button";
+import AkiraButton from "@/components/global/Button";
 
 import { Link } from "expo-router";
 
 import { useState, useEffect } from "react";
+import DecksContainer from "@/components/UI/index/DecksContainer";
 
 interface DashboardDate {
   day: string;
@@ -26,7 +28,9 @@ export default function HomeScreen() {
   // Other
   const { width } = useWindowDimensions();
   const { colorScheme, toggleColorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
 
+  /*  SE QUEDA PORQUE FUE INCREIBLE
   useEffect(() => {
     // runs at the start of the app to make the stupidiest fix in the history of programming: force the app to load with the correct height changing the theme two times.
     try {
@@ -36,6 +40,7 @@ export default function HomeScreen() {
       console.error("Error toggling color scheme:", error);
     }
   }, []);
+  */
 
   // Greeting
   const [name, setName] = useState("Gorje");
@@ -48,7 +53,7 @@ export default function HomeScreen() {
 
   // Dashboard Card
   const [reviewDebt, setReviewDebt] = useState(44);
-  const [totalDaily, setTotalDaily] = useState(77);
+  const [totalDaily, setTotalDaily] = useState(70);
 
   const [progress, setProgress] = useState(0);
 
@@ -90,9 +95,12 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG">
-      <View className="mx-[24px] mt-[48px]">
-        <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px]">
+    <View
+      className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
+      <View className="mx-[24px]">
+        <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px] mt-[1.5rem]">
           {date.day.toUpperCase()} · {date.month.toUpperCase()} {date.date}
         </Text>
         <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
@@ -142,6 +150,7 @@ export default function HomeScreen() {
         </Text>
         <FullArrowRight />
       </AkiraButton>
+      <DecksContainer showInfo={true}></DecksContainer>
     </View>
   );
 }

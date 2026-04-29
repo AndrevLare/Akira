@@ -15,6 +15,9 @@ import { useFonts } from "expo-font";
 
 import { createTables } from "@/SRC/database/db";
 
+import { AppState } from "react-native";
+import * as NavigationBar from "expo-navigation-bar";
+
 // Evita que la pantalla de carga se oculte antes de tiempo
 SplashScreen.preventAutoHideAsync();
 
@@ -51,6 +54,24 @@ export default function RootLayout() {
     createTables();
   }, []);
 
+  const hideNavBar = async () => {
+    await NavigationBar.setVisibilityAsync("hidden");
+  };
+
+  useEffect(() => {
+    hideNavBar();
+
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active") {
+        hideNavBar();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
@@ -65,8 +86,24 @@ export default function RootLayout() {
     >
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="create-deck"
+          options={{
+            presentation: "modal",
+            headerShown: true, // Mantenlo activo para editarlo
+            headerTitle: "01 · NEW DECK",
+            headerTitleStyle: {
+              fontFamily: "AK-data", // Tu fuente personalizada
+              fontSize: 15, // Tamaño del título
+            },
+            headerStyle: {
+              backgroundColor: colorScheme === "dark" ? "#141414" : "#f4f2ed", // Fondo del header
+            },
+            headerTintColor: colorScheme === "dark" ? "#9f9f9f" : "#9f9f9f", // Color de botones y texto
+            headerShadowVisible: false, // Quita la línea de abajo para un look más limpio
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" />
     </ThemeProvider>
   );
 }
