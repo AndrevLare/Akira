@@ -87,17 +87,51 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
-          name="create-deck"
+          name="create-edit-deck"
           options={{
             presentation: "modal",
             headerShown: true, // Mantenlo activo para editarlo
-            headerTitle: "01 · NEW DECK",
+            headerTitle: "01 · DECK",
             headerTitleStyle: {
               fontFamily: "AK-data", // Tu fuente personalizada
               fontSize: 15, // Tamaño del título
             },
             headerStyle: {
               backgroundColor: colorScheme === "dark" ? "#141414" : "#f4f2ed", // Fondo del header
+            },
+            headerTintColor: colorScheme === "dark" ? "#9f9f9f" : "#9f9f9f", // Color de botones y texto
+            headerShadowVisible: false, // Quita la línea de abajo para un look más limpio
+          }}
+        />
+        <Stack.Screen
+          name="create-edit-card"
+          options={{
+            presentation: "modal",
+            headerShown: true, // Mantenlo activo para editarlo
+            headerTitle: "02 · CARD",
+            headerTitleStyle: {
+              fontFamily: "AK-data", // Tu fuente personalizada
+              fontSize: 15, // Tamaño del título
+            },
+            headerStyle: {
+              backgroundColor: colorScheme === "dark" ? "#141414" : "#f4f2ed", // Fondo del header
+            },
+            headerTintColor: colorScheme === "dark" ? "#9f9f9f" : "#9f9f9f", // Color de botones y texto
+            headerShadowVisible: false, // Quita la línea de abajo para un look más limpio
+          }}
+        />
+        <Stack.Screen
+          name="decks/deck-details"
+          options={{
+            presentation: "modal",
+            headerShown: true, // Mantenlo activo para editarlo
+            headerTitle: "DECK DETAILS",
+            headerTitleStyle: {
+              fontFamily: "AK-data", // Tu fuente personalizada
+              fontSize: 15, // Tamaño del título
+            },
+            headerStyle: {
+              backgroundColor: colorScheme === "dark" ? "#0e0e10" : "#f4f2ed", // Fondo del header
             },
             headerTintColor: colorScheme === "dark" ? "#9f9f9f" : "#9f9f9f", // Color de botones y texto
             headerShadowVisible: false, // Quita la línea de abajo para un look más limpio

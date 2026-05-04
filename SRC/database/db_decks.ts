@@ -11,7 +11,7 @@ export const createDeck = async (name: string, color: string, icon: string) => {
     const result = await database.runAsync(query, [name, color, icon]);
 
     console.log("(db_decks) Deck creado con ID:", result.lastInsertRowId);
-    return result.lastInsertRowId;
+    return result.lastInsertRowId; // Devuelve el ID del nuevo deck
   } catch (e) {
     console.error("Error creating the deck:", e);
     throw e;
@@ -37,12 +37,16 @@ export const deleteDeck = async (id: number) => {
 
 export const GetAllDecks = async (): Promise<any[]> => {
   const query = /*sql*/ `
-    SELECT d.*, COUNT(c.id) as card_count, COUNT(CASE WHEN c.next_review_at <= CURRENT_TIMESTAMP THEN 1 END) as review_debt
-    FROM deck AS d LEFT JOIN card AS c
-    ON c.deck_id = d.id
+    SELECT 
+        d.*, 
+        COUNT(c.id) as card_count, 
+        COUNT(CASE WHEN c.next_review_at <= CURRENT_TIMESTAMP AND c.interval > 0 THEN 1 END) as review_debt,
+        COUNT(CASE WHEN c.interval = 0 THEN 1 END) as new_cards
+    FROM deck AS d 
+    LEFT JOIN card AS c ON c.deck_id = d.id
     GROUP BY d.id
     ORDER BY d.name
-    `;
+`;
   try {
     const database = await db;
 
@@ -59,8 +63,16 @@ export const GetAllDecks = async (): Promise<any[]> => {
 
 export const GetDeckCards = async (deck_id: number) => {
   const query = /*sql*/ `
-    SELECT * FROM card WHERE deck_id = ?
-    `;
+    SELECT 
+        *,
+        CASE
+            WHEN interval = 0 THEN 1 -- Estado NUEVA (Marrón/Rojo - akira-hard)
+            WHEN interval < 1 AND DATE(next_review_at) = DATE('now') THEN 2 -- Estado APRENDIENDO (Verde Oscuro - akira-good)
+            WHEN interval >= 1 THEN 3 -- Estado REPASO / GRADUADA (Verde Claro - akira-easy)
+        END AS status
+    FROM card
+    WHERE deck_id = ?
+`;
 
   try {
     const database = await db;
@@ -71,6 +83,53 @@ export const GetDeckCards = async (deck_id: number) => {
     return result;
   } catch (e) {
     console.log("(db_decks) Error obtaining cards");
+    throw e;
+  }
+};
+
+export const GetDeckById = async (id: number) => {
+  const query = /*sql*/ `
+    SELECT 
+        d.*, 
+        COUNT(c.id) as card_count, 
+        COUNT(CASE WHEN c.next_review_at <= CURRENT_TIMESTAMP AND c.interval > 0 THEN 1 END) as review_debt,
+        COUNT(CASE WHEN c.interval = 0 THEN 1 END) as new_cards
+    FROM deck AS d
+    LEFT JOIN card AS c ON c.deck_id = d.id
+    WHERE d.id = ?
+    GROUP BY d.id
+`;
+
+  try {
+    const database = await db;
+    const result = database.getFirstAsync(query, [id]);
+    console.log("(db_decks) deck obtained: ", result);
+
+    return result;
+  } catch (e) {
+    console.log("(db_decks) Error obtaining the deck");
+    throw e;
+  }
+};
+
+export const UpdateDeck = async (
+  id: number,
+  name: string,
+  color: string,
+  icon: string,
+) => {
+  const query = /*sql*/ `
+    UPDATE deck SET name = ?, color = ?, icon = ? WHERE id = ?
+    `;
+  try {
+    const database = await db;
+    const result = database.runAsync(query, [name, color, icon, id]);
+    console.log(
+      `Deck ${id} updated with name: ${name}, color: ${color}, icon: ${icon}`,
+    );
+    return result;
+  } catch (e) {
+    console.log("(db_decks) Error updating the deck");
     throw e;
   }
 };

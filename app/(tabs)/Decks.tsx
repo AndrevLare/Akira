@@ -22,11 +22,11 @@ export default function Decks() {
           Decks
         </Text>
         <TouchableOpacity
-          className="bg-akira-ink dark:bg-akira-paper p-[15px] rounded-2xl"
-          onPress={() => router.push("/create-deck")}
+          className="bg-akira-ink dark:bg-akira-paper p-[12px] rounded-2xl"
+          onPress={() => router.push("/create-edit-deck")}
           activeOpacity={0.7}
         >
-          <Plus size={20} color={colorScheme === "dark" ? "#000" : "#fff"} />
+          <Plus size={16} color={colorScheme === "dark" ? "#000" : "#fff"} />
         </TouchableOpacity>
       </View>
       <DecksContainer></DecksContainer>

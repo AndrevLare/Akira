@@ -1,4 +1,4 @@
-import { useWindowDimensions, View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -95,62 +95,74 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View
+    <ScrollView
       className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
-      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+      contentContainerStyle={{
+        paddingBottom: 20,
+      }}
+      showsVerticalScrollIndicator={false}
     >
-      <View className="mx-[24px]">
-        <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px] mt-[1.5rem]">
-          {date.day.toUpperCase()} · {date.month.toUpperCase()} {date.date}
-        </Text>
-        <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
-          {`Good ${greeting}, \n${name}.`}
-        </Text>
-      </View>
-      <ThemeToggle className="absolute top-[54px] right-[32px]" />
-      <View className="flex-row items-center space-between bg-akira-pureWhite dark:bg-akira-lightDark p-[1rem] mx-[2rem] mt-[1.5rem] rounded-3xl shadow border border-akira-boxBorder dark:border-akira-boxDarkBorder p-5">
-        <CircularProgress percentage={progress} size={100} strokeWidth={10} />
-        <View className="ml-[2rem] flex">
-          <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest">
-            REVIEW DEBT
+      <View
+        className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
+        style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+      >
+        <View className="mx-[24px]">
+          <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px] mt-[1.5rem]">
+            {date.day.toUpperCase()} · {date.month.toUpperCase()} {date.date}
           </Text>
-          <Text className="text-akira-darkText font-AK_data text-[1.5rem]">
-            <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3.25rem]">
-              {reviewDebt}
-            </Text>{" "}
-            / {totalDaily}
-          </Text>
-          <Text
-            className={`text-akira-darkText font-AK_data font-semibold flex-1 ${width > 390 ? "" : "text-[3vw]"}`}
-          >
-            {totalDaily - reviewDebt} done · {reviewDebt} to go{" "}
+          <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
+            {`Good ${greeting}, \n${name}.`}
           </Text>
         </View>
-      </View>
-      <View className="m-[2rem] p-[1rem] bg-akira-darkWhite dark:bg-akira-altLightDark rounded-3xl shadow flex-row justify-start items-center">
-        <View className="p-[10px] bg-akira-lightFire rounded-xl">
-          <Fire_2 />
+        <ThemeToggle className="absolute top-[54px] right-[32px]" />
+        <View className="flex-row bg-akira-pureWhite dark:bg-akira-lightDark p-[1rem] mx-[2rem] mt-[1.5rem] rounded-3xl shadow border border-akira-boxBorder dark:border-akira-boxDarkBorder p-5">
+          <CircularProgress
+            percentage={progress}
+            size={100}
+            strokeWidth={10}
+            scale={width <= 400 ? 0.8 : 1}
+          />
+          <View className="ml-[3.5vw] flex-1">
+            <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest text-[3vw]">
+              REVIEW DEBT
+            </Text>
+            <Text className="text-akira-darkText font-AK_data text-[1.5rem]">
+              <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3.25rem]">
+                {reviewDebt}
+              </Text>{" "}
+              / {totalDaily}
+            </Text>
+            <Text
+              className={`text-akira-darkText font-AK_data font-semibold flex-1 ${width > 390 ? "" : "text-[3vw]"}`}
+            >
+              {totalDaily - reviewDebt} done · {reviewDebt} to go{" "}
+            </Text>
+          </View>
         </View>
-        <View className="ml-[1rem] flex-1 gap-[4px]">
-          <Text className="text-akira-ink dark:text-akira-paper font-AK_UI font-bold tracking-widest">
-            YOUR STREAK
-          </Text>
-          <Text className="text-akira-darkText font-AK_data text-[1.25rem]">
-            {streak} days <Fire className="inline" size={16} />
-          </Text>
-          <Text className="text-akira-darkText font-AK_UI tracking-widest">
-            You're on fire!!
-          </Text>
+        <View className="m-[2rem] p-[1rem] bg-akira-darkWhite dark:bg-akira-altLightDark rounded-3xl shadow flex-row justify-start items-center">
+          <View className="p-[10px] bg-akira-lightFire rounded-xl">
+            <Fire_2 />
+          </View>
+          <View className="ml-[1rem] flex-1 gap-[4px]">
+            <Text className="text-akira-ink dark:text-akira-paper font-AK_UI font-bold text-[4vw]">
+              {streak === 1 ? "1 day" : `${streak} days`} streak - on fire!{" "}
+              <Fire className="inline" size={14} />
+            </Text>
+            <Text className="text-akira-darkText font-AK_data tracking-widest text-[3vw]">
+              Finish today to extend to{" "}
+              {streak === 1 ? "1 more day" : `${streak + 1}`}!
+            </Text>
+          </View>
+          <ArrowRight size={24} fill="#9f9f9f" />
         </View>
-        <ArrowRight size={24} fill="#9f9f9f" />
+        <AkiraButton onPress={() => console.log("Start review session")}>
+          <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
+            Start review session
+          </Text>
+          <FullArrowRight />
+        </AkiraButton>
+        <DecksContainer showInfo={true}></DecksContainer>
       </View>
-      <AkiraButton onPress={() => console.log("Start review session")}>
-        <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
-          Start review session
-        </Text>
-        <FullArrowRight />
-      </AkiraButton>
-      <DecksContainer showInfo={true}></DecksContainer>
-    </View>
+    </ScrollView>
   );
 }
