@@ -12,7 +12,7 @@ export const createTables = async () => {
     name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     color TEXT DEFAULT '#FFFFFF',
-    icon TEXT CHECK(length(icon) <= 2) DEFAULT '🃏'
+    icon TEXT CHECK(length(icon) <= 2) DEFAULT 'A'
   );
 
   CREATE TABLE IF NOT EXISTS card (
@@ -23,7 +23,7 @@ export const createTables = async () => {
 
     -- algorithm control
     reps INTEGER DEFAULT 0,
-    interval INTEGER DEFAULT 1,
+    interval INTEGER DEFAULT 0,
     ease_factor REAL DEFAULT 2.5,
 
     -- time control
@@ -45,6 +45,12 @@ export const createTables = async () => {
     FOREIGN KEY (deck_id) REFERENCES deck (id) ON DELETE CASCADE
   );
   
+  CREATE TABLE IF NOT EXISTS srs_settings (
+    daily_notifications INTEGER DEFAULT 10, 
+    daily_new_cards INTEGER DEFAULT 10,
+    daily_cards_limit INTEGER DEFAULT 100
+  );
+
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY, -- El nombre del ajuste (ej: 'dark_mode')
     value TEXT NOT NULL    -- El valor (ej: 'true', 'english', '20:00')
@@ -52,7 +58,7 @@ export const createTables = async () => {
   `;
 
   try {
-    (await db).execAsync(query);
+    await (await db).execAsync(query);
     console.log("Tablas creadas o ya existían.");
   } catch (error) {
     console.error("Error al crear las tablas:", error);

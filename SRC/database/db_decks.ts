@@ -66,9 +66,9 @@ export const GetDeckCards = async (deck_id: number) => {
     SELECT 
         *,
         CASE
-            WHEN interval = 0 THEN 1 -- Estado NUEVA (Marrón/Rojo - akira-hard)
-            WHEN interval < 1 AND DATE(next_review_at) = DATE('now') THEN 2 -- Estado APRENDIENDO (Verde Oscuro - akira-good)
-            WHEN interval >= 1 THEN 3 -- Estado REPASO / GRADUADA (Verde Claro - akira-easy)
+            WHEN interval = 0 THEN 1 -- Estado NUEVA (Marrón/Rojo - akira-hard)                                                     x = 0
+            WHEN interval < 1 AND DATE(next_review_at) = DATE('now') THEN 2 -- Estado APRENDIENDO (Verde Oscuro - akira-good)   0 < x < 1
+            WHEN interval >= 1 THEN 3 -- Estado REPASO / GRADUADA (Verde Claro - akira-easy)                                   1 <= x
         END AS status
     FROM card
     WHERE deck_id = ?

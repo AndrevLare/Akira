@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useColorScheme } from "nativewind";
 
@@ -13,9 +13,13 @@ export default function Decks() {
   const { colorScheme } = useColorScheme();
 
   return (
-    <View
+    <ScrollView
       className="flex-1 bg-akira-paper dark:bg-akira-darkBG "
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+      contentContainerStyle={{
+        paddingBottom: 60,
+      }}
+      showsVerticalScrollIndicator={false}
     >
       <View className="w-full flex-row justify-between items-center mt-[1.5rem] px-[2rem]">
         <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
@@ -30,6 +34,6 @@ export default function Decks() {
         </TouchableOpacity>
       </View>
       <DecksContainer></DecksContainer>
-    </View>
+    </ScrollView>
   );
 }

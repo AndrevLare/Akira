@@ -139,7 +139,7 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
-        <View className="m-[2rem] p-[1rem] bg-akira-darkWhite dark:bg-akira-altLightDark rounded-3xl shadow flex-row justify-start items-center">
+        <View className="m-[2rem] p-[1rem] bg-akira-whiteVoid dark:bg-akira-altLightDark rounded-3xl flex-row justify-start items-center">
           <View className="p-[10px] bg-akira-lightFire rounded-xl">
             <Fire_2 />
           </View>

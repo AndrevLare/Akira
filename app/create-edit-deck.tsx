@@ -2,14 +2,18 @@ import AkiraButton from "@/components/global/Button";
 import { FullArrowRight } from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
 import { createDeck } from "@/SRC/database/db_decks";
+import { RouteProp, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TextInput, View, Pressable, ScrollView } from "react-native";
 
 interface DeckInfo {
   name: string;
   icon: string;
   color: number;
+}
+interface RouteParams {
+  triggerFunction?: boolean;
 }
 
 const Icons = ["A", "日", "∫", "⚕", "✓", "π", "♫", "★"];
@@ -39,6 +43,7 @@ const deckColorClasses: { [key: string]: string } = {
 
 export default function CreateDeckModal() {
   const router = useRouter();
+  const route = useRoute<RouteProp<{ params: RouteParams }>>();
 
   const [deckInfo, setDeckInfo] = useState<DeckInfo>({
     name: "New deck",
@@ -56,10 +61,10 @@ export default function CreateDeckModal() {
         deckInfo.icon,
       );
       if (response != null) {
-        console.log("Deck created successfully");
+        console.log("Deck created successfully, ID:", response);
         router.push({
           pathname: "/create-edit-card",
-          params: { deckId: response },
+          params: { deckId: response, newDeck: 1 },
         });
       } else {
         console.error("Failed to create deck");
@@ -69,6 +74,12 @@ export default function CreateDeckModal() {
     }
   };
 
+  useEffect(() => {
+    if (route.params?.triggerFunction) {
+      _createDeck();
+    }
+  }, [route.params]);
+
   return (
     <ScrollView
       className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
@@ -77,7 +88,7 @@ export default function CreateDeckModal() {
       }}
       showsVerticalScrollIndicator={false} // Limpia la interfaz ocultando la barra
     >
-      <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG p-6 border-t-2 border-akira-boxBorder dark:border-akira-boxDarkBorder gap-[1.5rem] overflow-scroll">
+      <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG p-6 border-t-2 border-akira-boxBorder dark:border-akira-boxDarkBorder gap-[1.5rem]">
         {/* Header */}
         <View>
           <Text className="text-[3rem] font-light text-akira-ink dark:text-akira-paper font-AK_display">
@@ -160,12 +171,6 @@ export default function CreateDeckModal() {
             ))}
           </View>
         </View>
-        <AkiraButton onPress={_createDeck}>
-          <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
-            Create
-          </Text>
-          <FullArrowRight />
-        </AkiraButton>
       </View>
     </ScrollView>
   );

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GetAllDecks } from "@/SRC/database/db_decks";
 import { Text } from "@/components/global/Text";
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface Deck {
   id: number;
@@ -20,18 +21,24 @@ export default function DecksContainer({ showInfo = false }) {
 
   const [decks, setDecks] = useState<Deck[]>([]);
 
-  useEffect(() => {
-    const fetchDecks = async () => {
-      try {
-        const allDecks: Deck[] = await GetAllDecks();
-        setDecks(allDecks);
-      } catch (error) {
-        console.error("Error fetching decks:", error);
-      }
-    };
+  const fetchDecks = async () => {
+    try {
+      const allDecks: Deck[] = await GetAllDecks();
+      setDecks(allDecks);
+    } catch (error) {
+      console.error("Error fetching decks:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchDecks();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDecks();
+    }, []),
+  );
 
   return (
     <View className="mx-[2rem] mt-[1.5rem] flex-1 items-center gap-[1.5rem]">

@@ -5,6 +5,7 @@ families, and extends the default theme with these customizations. The
 for classes to extract, and the `presets` property includes a preset
 from `nativewind`. The code is written in JavaScript and is exporting an
 object that represents the Tailwind CSS configuration. */
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
@@ -20,6 +21,7 @@ module.exports = {
           darkPaper: "#9c9789",
           darkText: "#9f9f9f",
           lightGrey: "#f2f2f2",
+          whiteVoid: "#eae9e4",
           grey: "#8a8a8a",
           ink: "#141414",
           accent: "#7cb342",
@@ -37,6 +39,7 @@ module.exports = {
           boxDarkBorder: "#28272c",
           fire: "#a5401a",
           lightFire: "#ffd1ad",
+          blue: "#43afc1",
         },
         decks: {
           red: "#c8978f",
@@ -53,6 +56,9 @@ module.exports = {
         sans: ["AK-UI"],
         AK_display: ["AK-display"],
         AK_data: ["AK-data"],
+        AK_jp: ["AK-notoJP"],
+        AK_ch: ["AK-notoCH"],
+        AK_kr: ["AK-notoKO"],
       },
     },
   },
