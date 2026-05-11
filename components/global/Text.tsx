@@ -48,7 +48,7 @@ export const Text = ({
   return (
     <RNText
       // leading-tight o un valor específico como leading-5
-      className={`${selectedFont} leading-tight ${className}`}
+      className={`${selectedFont} leading-tight ${className ?? ""}`}
       style={{ includeFontPadding: false }}
       {...props}
     >

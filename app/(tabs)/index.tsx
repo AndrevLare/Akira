@@ -1,6 +1,5 @@
-import { ScrollView, useWindowDimensions, View } from "react-native";
-import { useColorScheme } from "nativewind";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useWindowDimensions, View } from "react-native";
+import { initialWindowMetrics } from "react-native-safe-area-context";
 
 import {
   ArrowRight,
@@ -15,8 +14,9 @@ import AkiraButton from "@/components/global/Button";
 
 import { Link } from "expo-router";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import DecksContainer from "@/components/UI/index/DecksContainer";
+import { Gradient } from "@/components/global/Gradient";
 
 interface DashboardDate {
   day: string;
@@ -26,9 +26,8 @@ interface DashboardDate {
 
 export default function HomeScreen() {
   // Other
-  const { width } = useWindowDimensions();
-  const { colorScheme, toggleColorScheme } = useColorScheme();
-  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const topInset = initialWindowMetrics?.insets.top ?? 0;
 
   /*  SE QUEDA PORQUE FUE INCREIBLE
   useEffect(() => {
@@ -43,126 +42,137 @@ export default function HomeScreen() {
   */
 
   // Greeting
-  const [name, setName] = useState("Gorje");
-  const [greeting, setGreeting] = useState("");
-  const [date, setDate] = useState<DashboardDate>({
-    day: "",
-    month: "",
-    date: 0,
-  });
+  const [name] = useState("Gorje");
 
-  // Dashboard Card
-  const [reviewDebt, setReviewDebt] = useState(44);
-  const [totalDaily, setTotalDaily] = useState(70);
-
-  const [progress, setProgress] = useState(0);
-
-  // Streak
-  const [streak, setStreak] = useState(12);
-
-  useEffect(() => {
-    if (totalDaily > 0) {
-      setProgress(Math.round(((totalDaily - reviewDebt) / totalDaily) * 100));
-    } else {
-      setProgress(0);
-    }
-  }, [reviewDebt, totalDaily]);
-
-  useEffect(() => {
+  const greeting = useMemo(() => {
     const hours = new Date().getHours();
-    if (hours < 12) {
-      setGreeting("Morning");
-    } else if (hours < 18) {
-      setGreeting("Afternoon");
-    } else {
-      setGreeting("Evening");
-    }
+    if (hours < 12) return "Morning";
+    if (hours < 18) return "Afternoon";
+    return "Evening";
   }, []);
 
-  useEffect(() => {
+  const date = useMemo<DashboardDate>(() => {
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long",
       month: "short",
     };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    const parts = formatter.formatToParts(now);
-    const day = parts.find((part) => part.type === "weekday")?.value || "";
-    const month = parts.find((part) => part.type === "month")?.value || "";
-    const date = now.getDate();
-
-    setDate({ day, month, date });
+    const parts = new Intl.DateTimeFormat("en-US", options).formatToParts(now);
+    return {
+      day: parts.find((p) => p.type === "weekday")?.value || "",
+      month: parts.find((p) => p.type === "month")?.value || "",
+      date: now.getDate(),
+    };
   }, []);
 
+  // Dashboard Card
+  const [reviewDebt, setReviewDebt] = useState(44);
+  const [totalDaily, setTotalDaily] = useState(70);
+
+  const progress = useMemo(() => {
+    if (totalDaily > 0)
+      return Math.round(((totalDaily - reviewDebt) / totalDaily) * 100);
+    return 0;
+  }, [reviewDebt, totalDaily]);
+
+  // Streak
+  const [streak, setStreak] = useState(12);
+
   return (
-    <ScrollView
-      className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
-      contentContainerStyle={{
-        paddingBottom: 20,
-      }}
-      showsVerticalScrollIndicator={false}
-    >
+    <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG">
       <View
         className="flex-1 bg-akira-paper dark:bg-akira-darkBG"
-        style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+        style={{ paddingTop: topInset, minHeight: height }}
       >
         <View className="mx-[24px]">
-          <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px] mt-[1.5rem]">
-            {date.day.toUpperCase()} · {date.month.toUpperCase()} {date.date}
-          </Text>
-          <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
-            {`Good ${greeting}, \n${name}.`}
-          </Text>
+          <View className="flex-row align-center justify-between">
+            <View>
+              <Text className="text-akira-darkText font-AK_data font-bold tracking-widest text-[14px] mt-[1.5rem]">
+                {date.day.toUpperCase()} · {date.month.toUpperCase()}{" "}
+                {date.date}
+              </Text>
+              <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[8vw]">
+                {`Good ${greeting}, \n${name}.`}
+              </Text>
+            </View>
+            <View className="items-center justify-center p-5">
+              <CircularProgress
+                percentage={progress}
+                size={70}
+                strokeWidth={7}
+                scale={width <= 400 ? 0.8 : 1}
+              />
+            </View>
+          </View>
         </View>
         <ThemeToggle className="absolute top-[54px] right-[32px]" />
-        <View className="flex-row bg-akira-pureWhite dark:bg-akira-lightDark p-[1rem] mx-[2rem] mt-[1.5rem] rounded-3xl shadow border border-akira-boxBorder dark:border-akira-boxDarkBorder p-5">
-          <CircularProgress
-            percentage={progress}
-            size={100}
-            strokeWidth={10}
-            scale={width <= 400 ? 0.8 : 1}
-          />
-          <View className="ml-[3.5vw] flex-1">
-            <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest text-[3vw]">
-              REVIEW DEBT
-            </Text>
-            <Text className="text-akira-darkText font-AK_data text-[1.5rem]">
-              <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3.25rem]">
+        {streak > 0 && (
+          <View className="mx-[2rem] mt-[1.5rem] rounded-3xl overflow-hidden">
+            <Gradient>
+              <View className="p-[1rem] rounded-3xl flex-row justify-start items-center">
+                <View className="p-[10px] bg-akira-lightFire rounded-xl">
+                  <Fire_2 />
+                </View>
+                <View className="ml-[1rem] flex-1 gap-[4px]">
+                  <Text className="dark:text-akira-ink text-akira-paper font-AK_UI font-bold text-[4vw]">
+                    {streak === 1 ? "1 day" : `${streak} days`} streak
+                  </Text>
+                  <Text className="dark:text-akira-ink text-akira-paper font-AK_data tracking-wider text-[3vw]">
+                    Finish today to keep it alive!
+                  </Text>
+                </View>
+                <Text
+                  variant="display"
+                  className="text-[8vw] dark:text-akira-ink text-akira-paper"
+                >
+                  {streak}
+                </Text>
+              </View>
+            </Gradient>
+          </View>
+        )}
+        <View className="flex-row items-center justify-center gap-[1.5rem] mx-[2rem] my-[1rem]">
+          <View className="flex w-[50%] bg-akira-pureWhite dark:bg-akira-lightDark px-[1rem] py-[1rem] rounded-3xl border border-akira-boxBorder dark:border-akira-boxDarkBorder shadow-sm">
+            <View className="">
+              <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest text-[3vw]">
+                DUE
+              </Text>
+              <Text className="text-[10vw] font-light text-akira-ink dark:text-akira-paper font-AK_display">
                 {reviewDebt}
-              </Text>{" "}
-              / {totalDaily}
-            </Text>
-            <Text
-              className={`text-akira-darkText font-AK_data font-semibold flex-1 ${width > 390 ? "" : "text-[3vw]"}`}
-            >
-              {totalDaily - reviewDebt} done · {reviewDebt} to go{" "}
-            </Text>
+              </Text>
+              <Text
+                className={`text-akira-darkText font-AK_data font-semibold text-[3vw]`}
+              >
+                cards waiting
+              </Text>
+            </View>
+          </View>
+          <View className="flex w-[50%] dark:bg-akira-pureWhite bg-akira-lightDark px-[1rem] py-[1rem] rounded-3xl border border-akira-boxBorder dark:border-akira-boxDarkBorder shadow-sm">
+            <View className="">
+              <Text className="text-akira-darkText font-AK_UI font-bold tracking-widest text-[3vw]">
+                DONE
+              </Text>
+              <Text className="text-[10vw] font-light dark:text-akira-ink text-akira-paper font-AK_display">
+                {totalDaily - reviewDebt}
+              </Text>
+              <Text
+                className={`text-akira-darkText font-AK_data font-semibold text-[3vw]`}
+              >
+                today
+              </Text>
+            </View>
           </View>
         </View>
-        <View className="m-[2rem] p-[1rem] bg-akira-whiteVoid dark:bg-akira-altLightDark rounded-3xl flex-row justify-start items-center">
-          <View className="p-[10px] bg-akira-lightFire rounded-xl">
-            <Fire_2 />
-          </View>
-          <View className="ml-[1rem] flex-1 gap-[4px]">
-            <Text className="text-akira-ink dark:text-akira-paper font-AK_UI font-bold text-[4vw]">
-              {streak === 1 ? "1 day" : `${streak} days`} streak - on fire!{" "}
-              <Fire className="inline" size={14} />
+        <DecksContainer showInfo={"RECENT DECKS"}></DecksContainer>
+        <View className="mt-auto mb-[1rem]">
+          <AkiraButton onPress={() => setStreak(streak + 1)}>
+            <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
+              Start review session
             </Text>
-            <Text className="text-akira-darkText font-AK_data tracking-widest text-[3vw]">
-              Finish today to extend to{" "}
-              {streak === 1 ? "1 more day" : `${streak + 1}`}!
-            </Text>
-          </View>
-          <ArrowRight size={24} fill="#9f9f9f" />
+            <FullArrowRight />
+          </AkiraButton>
         </View>
-        <AkiraButton onPress={() => console.log("Start review session")}>
-          <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
-            Start review session
-          </Text>
-          <FullArrowRight />
-        </AkiraButton>
-        <DecksContainer showInfo={true}></DecksContainer>
       </View>
-    </ScrollView>
+    </View>
   );
 }

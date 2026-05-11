@@ -202,6 +202,110 @@ const BackIcon = ({ size = 25, ...props }: IconProps) => {
   );
 };
 
+const TrashCan = ({ size = 20, ...props }: IconProps) => (
+  <Svg
+    fill="#de4e4b"
+    width={size}
+    height={size}
+    viewBox="-3 -2 24 24"
+    {...props}
+  >
+    <Path d="M6 2V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1h4a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-.133l-.68 10.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.137 7H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4zm10 2H2v1h14V4zM4.141 7l.687 10.068a1 1 0 0 0 .998.932h6.368a1 1 0 0 0 .998-.934L13.862 7h-9.72zM7 8a1 1 0 0 1 1 1v7a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v7a1 1 0 0 1-2 0V9a1 1 0 0 1 1-1z" />
+  </Svg>
+);
+
+const Dots = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+  return (
+    <Svg
+      fill={isDarkMode ? "#9f9f9f" : "#141414"}
+      width={size}
+      height={size}
+      viewBox="0 0 1000 1000"
+      {...props}
+    >
+      <Path d="M244 416q-35 0-59.5 24.5T160 500t24.5 59.5T244 584t59.5-24.5T328 500t-24.5-59.5T244 416zm256 0q-35 0-59.5 24.5T416 500t24.5 59.5 59 24.5 59.5-24.5 25-59.5-25-59.5-60-24.5h1zm256 0q-35 0-59.5 24.5T672 500t24.5 59.5T756 584t59.5-24.5T840 500t-24.5-59.5T756 416z" />
+    </Svg>
+  );
+};
+
+const Pencil = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Svg
+      fill={isDarkMode ? "#9f9f9f" : "#141414"}
+      width={size}
+      height={size}
+      viewBox="-2.5 -2.5 24 24"
+      preserveAspectRatio="xMinYMin"
+      className="jam jam-pencil"
+      {...props}
+    >
+      <Path d="M12.238 5.472L3.2 14.51l-.591 2.016 1.975-.571 9.068-9.068-1.414-1.415zM13.78 3.93l1.414 1.414 1.318-1.318a.5.5 0 0 0 0-.707l-.708-.707a.5.5 0 0 0-.707 0L13.781 3.93zm3.439-2.732l.707.707a2.5 2.5 0 0 1 0 3.535L5.634 17.733l-4.22 1.22a1 1 0 0 1-1.237-1.241l1.248-4.255 12.26-12.26a2.5 2.5 0 0 1 3.535 0z" />
+    </Svg>
+  );
+};
+
+const Export = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Svg
+      fill={isDarkMode ? "#9f9f9f" : "#141414"}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <Path d="M3.293,20.707a1,1,0,0,1,0-1.414L17.586,5H12a1,1,0,0,1,0-2h8a1,1,0,0,1,1,1v8a1,1,0,0,1-2,0V6.414L4.707,20.707a1,1,0,0,1-1.414,0Z" />
+    </Svg>
+  );
+};
+
+const Archive = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Svg
+      fill={isDarkMode ? "#9f9f9f" : "#141414"}
+      width={size}
+      height={size}
+      viewBox="-2 -4 24 24"
+      preserveAspectRatio="xMinYMin"
+      className="jam jam-box"
+      {...props}
+    >
+      <Path d="M3 0h14a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3zm10.874 5a4.002 4.002 0 0 1-7.748 0H2V5h16v2h-4.126zm-2.142 0H8.268a2 2 0 0 0 3.464 0z" />
+    </Svg>
+  );
+};
+
+const Add = ({ size = 20, ...props }: IconProps) => {
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill={isDarkMode ? "#9f9f9f" : "#141414"}
+      {...props}
+    >
+      <Path d="M14 7v1H8v6H7V8H1V7h6V1h1v6h6z" />
+    </Svg>
+  );
+};
 export {
   Fire,
   Fire_2,
@@ -214,4 +318,10 @@ export {
   Plus,
   MagnifyingGlass,
   BackIcon,
+  TrashCan,
+  Dots,
+  Pencil,
+  Add,
+  Export,
+  Archive,
 };

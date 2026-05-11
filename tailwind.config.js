@@ -40,6 +40,8 @@ module.exports = {
           fire: "#a5401a",
           lightFire: "#ffd1ad",
           blue: "#43afc1",
+          red: "#de4e4b",
+          lightRed: "#ffe2de",
         },
         decks: {
           red: "#c8978f",

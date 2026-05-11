@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { View, TextInput, ScrollView, Pressable } from "react-native";
 import { Text } from "@/components/global/Text";
 import { SRSSchedule } from "@/components/UI/SRS-Schedule";
 import { FullArrowRight, MagnifyingGlass } from "@/components/global/icons";
-
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { GetDeckById, GetDeckCards } from "@/SRC/database/db_decks";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import AkiraButton from "@/components/global/Button";
+import DeckOptionsSheet from "@/components/UI/DeckDetails/DeckOptions";
+import { Deck } from "@/components/UI/index/DecksContainer";
+import DeleteDeckModal from "@/components/UI/ConfirmDelete";
 
 interface DeckInfo {
   id: number;
@@ -37,60 +39,71 @@ interface RouteParams {
 export default function DeckDetails() {
   const router = useRouter();
   const route = useRoute<RouteProp<{ params: RouteParams }>>();
-
-  useEffect(() => {
-    if (route.params?.triggerFunction) {
-      console.log("(deck-details) Función disparada desde el header");
-      router.push({
-        pathname: "/create-edit-card",
-        params: { deckId, newDeck: deck?.card_count == 0 ? 1 : 0 },
-      });
-    }
-  }, [route.params]);
-
   const { deckId } = useLocalSearchParams();
 
   const [deck, setDeck] = useState<DeckInfo | null>(null);
   const [cards, setCards] = useState<CardInfo[]>([]);
+  const [search, setSearch] = useState("");
 
-  const [showing, setShowing] = useState(0);
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [deckToDelete, setDeckToDelete] = useState<Deck | null>(null);
+
+  // Abre el sheet si se navega con triggerFunction (botón del header)
+  useEffect(() => {
+    if (route.params?.triggerFunction) {
+      setSheetVisible(true);
+    }
+  }, [route.params]);
+
+  const fetchData = async () => {
+    try {
+      const [deckData, cardsData] = await Promise.all([
+        GetDeckById(Number(deckId)) as Promise<DeckInfo>,
+        GetDeckCards(Number(deckId)) as Promise<CardInfo[]>,
+      ]);
+      setDeck(deckData);
+      setCards(cardsData);
+    } catch (error) {
+      console.error("Error fetching deck details:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDeckDetails = async () => {
-      try {
-        const deckData: DeckInfo = (await GetDeckById(
-          Number(deckId),
-        )) as DeckInfo;
-        setDeck(deckData);
-      } catch (error) {
-        console.error("Error fetching deck details:", error);
-      }
-    };
-
-    const fetchCards = async () => {
-      try {
-        const cardsData: CardInfo[] = (await GetDeckCards(
-          Number(deckId),
-        )) as CardInfo[];
-        setCards(cardsData);
-        setShowing(cardsData.length);
-      } catch (error) {
-        console.error("Error fetching cards:", error);
-      }
-    };
-
-    fetchDeckDetails();
-    fetchCards();
+    fetchData();
   }, [deckId]);
+
+  // Refresca al volver a la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [deckId]),
+  );
+
+  const confirmDelete = () => {
+    if (!deckToDelete) return;
+    // DeleteDeck(deckToDelete.id);
+    setDeckToDelete(null);
+    router.back();
+  };
+
+  // Filtra las cartas según el texto de búsqueda
+  const filteredCards = cards.filter(
+    (card) =>
+      card.front.toLowerCase().includes(search.toLowerCase()) ||
+      card.back.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  if (!deck) return null;
 
   return (
     <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG pb-[2rem]">
+      {/* Header del deck */}
       <View className="flex-row items-center p-5 rounded-3xl mx-[2rem]">
         <View
-          className={`${deck?.color} rounded-xl w-[12.5vw] h-[12.5vw] items-center justify-center`}
+          className={`${deck.color} rounded-xl w-[12.5vw] h-[12.5vw] items-center justify-center`}
         >
           <Text className="text-akira-pureWhite font-AK_display text-[2rem]">
-            {deck?.icon}
+            {deck.icon}
           </Text>
         </View>
         <View className="ml-4 flex-1 gap-[2px]">
@@ -98,67 +111,114 @@ export default function DeckDetails() {
             className="text-akira-ink dark:text-akira-paper text-[7.5vw]"
             variant="display"
           >
-            {deck?.name || "Untitled Deck"}
+            {deck.name || "Untitled Deck"}
           </Text>
           <Text className="text-akira-darkText font-AK_data text-[3.25vw]">
-            {deck?.card_count} cards · {deck?.review_debt} due
+            {deck.card_count} cards · {deck.review_debt} due
           </Text>
         </View>
       </View>
+
+      {/* SRS Schedule */}
       <View className="mx-[2rem]">
         <SRSSchedule cards={cards} />
       </View>
-      <View className="mx-[2rem] mt-[1.5rem] bg-akira-pureWhite dark:bg-akira-lightDark border border-akira-boxBorder dark:border-akira-boxDarkBorder px-4 rounded-2xl text-akira-ink dark:text-akira-paper font-AK_UI text-[1.15rem] flex-row items-center gap-3">
+
+      {/* Buscador */}
+      <View className="mx-[2rem] mt-[1.5rem] bg-akira-pureWhite dark:bg-akira-lightDark border border-akira-boxBorder dark:border-akira-boxDarkBorder px-4 rounded-2xl flex-row items-center gap-3">
         <MagnifyingGlass size={20} />
         <TextInput
           className="dark:text-akira-paper text-akira-ink flex-1 py-3"
-          placeholder="Search Cards..."
+          placeholder="Search cards..."
           placeholderTextColor="#9f9f9f"
+          value={search}
+          onChangeText={setSearch}
         />
       </View>
+
+      {/* Cabecera de la lista */}
       <View className="flex-row justify-between mx-[2rem] mt-[1rem]">
-        <Text className="text-akira-darkText dark:text-akira-darkPaper font-AK_data tracking-widest text-[3vw]">
+        <Text className="text-akira-darkText font-AK_data tracking-widest text-[3vw]">
           ALL CARDS
         </Text>
-        <Text className="text-akira-darkText dark:text-akira-darkPaper text-[3vw] font-AK_data tracking-widest">
-          {showing} total
+        <Text className="text-akira-darkText font-AK_data tracking-widest text-[3vw]">
+          {filteredCards.length} showing
         </Text>
       </View>
+
+      {/* Lista de cartas */}
       <ScrollView
-        className="mt-[2rem] flex-1"
-        contentContainerStyle={{
-          paddingBottom: 20,
-        }}
+        className="mt-[1rem] flex-1"
+        contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        {cards.map((card, index) => {
-          const isLastChild = index === cards.length - 1;
-          return (
+        {filteredCards.length === 0 ? (
+          <View className="items-center py-8">
+            <Text className="text-akira-darkText font-AK_data text-[3.5vw]">
+              No cards found.
+            </Text>
+          </View>
+        ) : (
+          filteredCards.map((card, index) => (
             <View key={card.id}>
               <Card front={card.front} back={card.back} status={card.status} />
-              {!isLastChild && (
+              {index < filteredCards.length - 1 && (
                 <View className="mx-[2rem] my-[1.5rem] border-[0.75px] border-akira-darkPaper dark:border-akira-boxDarkBorder" />
               )}
             </View>
-          );
-        })}
+          ))
+        )}
       </ScrollView>
+
+      {/* Botón de review */}
       {cards.length > 0 && (
         <AkiraButton onPress={() => console.log("Start review session")}>
           <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
-            review {showing} {showing === 1 ? "card" : "cards"}
+            Review {cards.length} {cards.length === 1 ? "card" : "cards"}
           </Text>
           <FullArrowRight />
         </AkiraButton>
       )}
+
+      {/* Bottom sheet de opciones */}
+      <DeckOptionsSheet
+        visible={sheetVisible}
+        deck={deck}
+        onClose={() => setSheetVisible(false)}
+        onDelete={() => {
+          setSheetVisible(false);
+          setDeckToDelete(deck as unknown as Deck);
+        }}
+      />
+
+      {/* Modal de confirmación de borrado */}
+      {deckToDelete && (
+        <DeleteDeckModal
+          visible={true}
+          deck={deck}
+          onCancel={() => setDeckToDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </View>
   );
 }
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
 const getStatusColor = (status: number) => {
-  if (status == 1) return "bg-akira-hard";
-  if (status == 2) return "bg-akira-blue";
-  if (status == 3) return "bg-akira-accent";
+  if (status === 1) return "bg-akira-hard";
+  if (status === 2) return "bg-akira-blue";
+  return "bg-akira-accent";
 };
+
+const getStatusLabel = (status: number) => {
+  if (status === 1) return "NEW";
+  if (status === 2) return "YOUNG";
+  return "MATURE";
+};
+
+// ─── Card Item ───────────────────────────────────────────────────────────────
 
 function Card({
   front,
@@ -170,19 +230,23 @@ function Card({
   status: number;
 }) {
   return (
-    <Pressable className={`flex-row items-center mx-[2rem] gap-1`}>
+    <Pressable className="flex-row items-center mx-[2rem] gap-1">
       <View className={`${getStatusColor(status)} w-4 h-4 rounded-full mr-4`} />
       <Text
-        className="text-akira-ink dark:text-akira-paper text-[5vw] w-[30%] text-ellipsis"
+        className="text-akira-ink dark:text-akira-paper text-[5vw] w-[30%]"
         variant="display"
+        numberOfLines={1}
       >
         {front}
       </Text>
-      <Text className="text-akira-darkText dark:text-akira-darkPaper text-[3vw]">
+      <Text
+        className="text-akira-darkText dark:text-akira-darkPaper text-[3vw] flex-1"
+        numberOfLines={1}
+      >
         {back}
       </Text>
       <Text className="text-akira-darkText dark:text-akira-darkPaper text-[3vw] ml-auto">
-        {status == 1 ? "NEW" : status == 2 ? "YOUNG" : "MATURE"}
+        {getStatusLabel(status)}
       </Text>
     </Pressable>
   );

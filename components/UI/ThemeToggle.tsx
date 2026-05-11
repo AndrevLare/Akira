@@ -1,6 +1,7 @@
 import { useColorScheme } from "nativewind";
 import { TouchableHighlight } from "react-native";
 import { Sun, Moon } from "@/components/global/icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // 1. Añadimos 'props: any' o una interfaz si usas TS
 export default function ThemeToggle(props: any) {
@@ -8,10 +9,16 @@ export default function ThemeToggle(props: any) {
 
   const isDarkMode = colorScheme === "dark";
 
+  const handleToggle = () => {
+    const next = colorScheme === "dark" ? "light" : "dark";
+    toggleColorScheme();
+    AsyncStorage.setItem("akira_theme", next);
+  };
+
   return (
     <TouchableHighlight
       {...props} // Ahora ya existe porque lo recibimos en la función
-      onPress={toggleColorScheme} // NativeWind ya maneja el cambio internamente
+      onPress={handleToggle} // Llamamos a nuestra función personalizada
       underlayColor={isDarkMode ? "#00000000" : "#00000000"} // Color al presionar
       className={`rounded-full border border-akira-ink dark:border-akira-paper items-center justify-center self-start ${props.className}`}
       {...props}

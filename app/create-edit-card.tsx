@@ -55,7 +55,7 @@ export default function CreateEditCard() {
       if (frontText && backText) _createCard();
       router.push({
         pathname: "/decks/deck-details",
-        params: { deckId },
+        params: { deckId: deckId.toString() },
       });
     }
   }, [route.params]);

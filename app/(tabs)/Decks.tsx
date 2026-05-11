@@ -13,13 +13,9 @@ export default function Decks() {
   const { colorScheme } = useColorScheme();
 
   return (
-    <ScrollView
+    <View
       className="flex-1 bg-akira-paper dark:bg-akira-darkBG "
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
-      contentContainerStyle={{
-        paddingBottom: 60,
-      }}
-      showsVerticalScrollIndicator={false}
     >
       <View className="w-full flex-row justify-between items-center mt-[1.5rem] px-[2rem]">
         <Text className="text-[40px] font-light text-akira-ink dark:text-akira-paper font-AK_display text-[3rem]">
@@ -34,6 +30,6 @@ export default function Decks() {
         </TouchableOpacity>
       </View>
       <DecksContainer></DecksContainer>
-    </ScrollView>
+    </View>
   );
 }
