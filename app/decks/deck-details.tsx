@@ -4,33 +4,12 @@ import { Text } from "@/components/global/Text";
 import { SRSSchedule } from "@/components/UI/SRS-Schedule";
 import { FullArrowRight, MagnifyingGlass } from "@/components/global/icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { GetDeckById, GetDeckCards } from "@/SRC/database/db_decks";
+import { GetDeckById, GetDeckCards, deleteDeck } from "@/SRC/database/db_decks";
 import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import AkiraButton from "@/components/global/Button";
 import DeckOptionsSheet from "@/components/UI/DeckDetails/DeckOptions";
-import { Deck } from "@/components/UI/index/DecksContainer";
 import DeleteDeckModal from "@/components/UI/ConfirmDelete";
-
-interface DeckInfo {
-  id: number;
-  name: string;
-  created_at: string;
-  color: string;
-  icon: string;
-  card_count: number;
-  review_debt: number;
-  new_cards: number;
-}
-
-export interface CardInfo {
-  id: number;
-  front: string;
-  back: string;
-  interval: number;
-  next_review_at: string;
-  status: number;
-  deck_id: number;
-}
+import { DeckInfo, CardInfo } from "@/SRC/Types/types";
 
 interface RouteParams {
   triggerFunction?: boolean;
@@ -46,7 +25,7 @@ export default function DeckDetails() {
   const [search, setSearch] = useState("");
 
   const [sheetVisible, setSheetVisible] = useState(false);
-  const [deckToDelete, setDeckToDelete] = useState<Deck | null>(null);
+  const [deckToDelete, setDeckToDelete] = useState<DeckInfo | null>(null);
 
   // Abre el sheet si se navega con triggerFunction (botón del header)
   useEffect(() => {
@@ -79,11 +58,16 @@ export default function DeckDetails() {
     }, [deckId]),
   );
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deckToDelete) return;
-    // DeleteDeck(deckToDelete.id);
-    setDeckToDelete(null);
-    router.back();
+    try {
+      await deleteDeck(deckToDelete.id);
+      setDeckToDelete(null);
+      console.log("(DeckDetails) Deck deleted, navigating back to decks list");
+      router.replace("/(tabs)/Decks");
+    } catch (error) {
+      console.error("(DecksContainer) Error deleting deck:", error);
+    }
   };
 
   // Filtra las cartas según el texto de búsqueda
@@ -187,7 +171,7 @@ export default function DeckDetails() {
         onClose={() => setSheetVisible(false)}
         onDelete={() => {
           setSheetVisible(false);
-          setDeckToDelete(deck as unknown as Deck);
+          setDeckToDelete(deck as unknown as DeckInfo);
         }}
       />
 

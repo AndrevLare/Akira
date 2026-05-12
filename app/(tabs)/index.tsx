@@ -163,7 +163,10 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <DecksContainer showInfo={"RECENT DECKS"}></DecksContainer>
+        <DecksContainer
+          showInfo={"RECENT DECKS"}
+          showLimitedCards={3}
+        ></DecksContainer>
         <View className="mt-auto mb-[1rem]">
           <AkiraButton onPress={() => setStreak(streak + 1)}>
             <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">

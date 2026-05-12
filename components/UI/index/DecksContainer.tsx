@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { GetAllDecks } from "@/SRC/database/db_decks";
+import { GetAllDecks, deleteDeck } from "@/SRC/database/db_decks";
 import { Text } from "@/components/global/Text";
 import { Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -12,17 +12,7 @@ import Reanimated, {
 } from "react-native-reanimated";
 import { useRef } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
-
-export interface Deck {
-  id: number;
-  name: string;
-  created_at: string;
-  color: string;
-  icon: string;
-  card_count: number;
-  review_debt: number;
-  new_cards: number;
-}
+import { DeckInfo as Deck } from "@/SRC/Types/types";
 
 export default function DecksContainer({
   showInfo = "YOUR DECKS",
@@ -49,11 +39,16 @@ export default function DecksContainer({
     setDeckToDelete(deck);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deckToDelete) return;
-    // DeleteDeck(deckToDelete.id);
-    setDecks((prev) => prev.filter((d) => d.id !== deckToDelete.id));
-    setDeckToDelete(null);
+    try {
+      await deleteDeck(deckToDelete.id);
+      setDeckToDelete(null);
+      console.log("(DecksContainer) Deck deleted, refreshing list");
+      setDecks((prev) => prev.filter((d) => d.id !== deckToDelete.id));
+    } catch (error) {
+      console.error("(DecksContainer) Error deleting deck:", error);
+    }
   };
 
   useEffect(() => {
@@ -68,7 +63,7 @@ export default function DecksContainer({
 
   return (
     <ScrollView
-      className="mx-[2rem] mt-[1rem]"
+      className="mx-[2rem] my-[1rem]"
       contentContainerStyle={{
         paddingBottom: 20,
         gap: 12,

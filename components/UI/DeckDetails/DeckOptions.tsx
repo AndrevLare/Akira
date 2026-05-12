@@ -1,6 +1,7 @@
 import { Modal, Animated, Pressable, View } from "react-native";
 import { useEffect, useRef } from "react";
 import { Text } from "@/components/global/Text";
+import { DeckInfo } from "@/SRC/Types/types";
 import {
   Pencil,
   Add,
@@ -8,10 +9,11 @@ import {
   TrashCan,
   Archive,
 } from "@/components/global/icons";
+import { useRouter } from "expo-router";
 
 interface DeckOptionsSheetProps {
   visible: boolean;
-  deck: { name: string } | null;
+  deck: DeckInfo | null;
   onClose: () => void;
   onDelete: () => void;
 }
@@ -22,24 +24,39 @@ const OPTIONS = [
     label: "Edit deck",
     sub: "Name, icon, color",
     danger: false,
+    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
+      console.log("(DeckOptions) Navigating to edit deck:", deck.name);
+      router.push({
+        pathname: "/create-edit-deck",
+        params: { deckInfo: JSON.stringify(deck) },
+      });
+    },
   },
   {
     icon: <Add />,
     label: "Add cards",
     sub: "Bulk import or one-by-one",
     danger: false,
+    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
+      router.push({
+        pathname: "/create-edit-card",
+        params: { deckId: deck.id, newDeck: deck.card_count === 0 ? 1 : 0 },
+      });
+    },
   },
   {
     icon: <Export />,
     label: "Export",
     sub: "Anki / CSV / JSON",
     danger: false,
+    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {}, // Placeholder, implement as needed
   },
   {
     icon: <Archive />,
     label: "Archive",
     sub: "Keep stats, pause reviews",
     danger: false,
+    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {}, // Placeholder, implement as needed
   },
   {
     icon: <TrashCan />,
@@ -55,6 +72,8 @@ export default function DeckOptionsSheet({
   onClose,
   onDelete,
 }: DeckOptionsSheetProps) {
+  const router = useRouter();
+
   const translateY = useRef(new Animated.Value(500)).current;
 
   useEffect(() => {
@@ -66,11 +85,12 @@ export default function DeckOptionsSheet({
     }).start();
   }, [visible]);
 
-  const handlePress = (danger: boolean) => {
+  const handlePress = (danger: boolean, opt: any) => {
     if (danger) {
       onDelete(); // onDelete ya maneja el cierre
     } else {
       onClose();
+      opt.onPress({ router, deck });
     }
   };
 
@@ -117,7 +137,7 @@ export default function DeckOptionsSheet({
           <Pressable
             key={opt.label}
             className="flex-row items-center py-4 gap-4"
-            onPress={() => handlePress(opt.danger)}
+            onPress={() => handlePress(opt.danger, opt)}
           >
             <View
               className={`w-14 h-14 rounded-xl items-center justify-center ${

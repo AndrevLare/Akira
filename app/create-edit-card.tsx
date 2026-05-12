@@ -3,14 +3,7 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Easing,
-  Pressable,
-  ScrollView,
-  View,
-  TextInput,
-} from "react-native";
+import { Animated, Easing, Pressable, ScrollView, View } from "react-native";
 import { InputText } from "@/components/global/Text";
 
 import { createCard } from "@/SRC/database/db_cards";

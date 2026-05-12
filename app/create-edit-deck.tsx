@@ -1,19 +1,16 @@
 import AkiraButton from "@/components/global/Button";
 import { FullArrowRight } from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
-import { createDeck } from "@/SRC/database/db_decks";
+import { createDeck, UpdateDeck } from "@/SRC/database/db_decks";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { TextInput, View, Pressable, ScrollView } from "react-native";
+import { DeckInfo } from "@/SRC/Types/types";
 
-interface DeckInfo {
-  name: string;
-  icon: string;
-  color: number;
-}
 interface RouteParams {
   triggerFunction?: boolean;
+  deckInfo?: string;
 }
 
 const Icons = ["A", "日", "∫", "⚕", "✓", "π", "♫", "★"];
@@ -48,10 +45,11 @@ export default function CreateDeckModal() {
   const [deckInfo, setDeckInfo] = useState<DeckInfo>({
     name: "New deck",
     icon: Icons[0],
-    color: 0,
-  });
+    color: ColorsOptions[0],
+  } as DeckInfo);
 
-  const currentColorClass = deckColorClasses[ColorsOptions[deckInfo.color]];
+  const currentColorClass =
+    deckColorClasses[deckInfo.color] || deckColorClasses[ColorsOptions[0]];
 
   const _createDeck = async () => {
     try {
@@ -61,23 +59,62 @@ export default function CreateDeckModal() {
         deckInfo.icon,
       );
       if (response != null) {
-        console.log("Deck created successfully, ID:", response);
+        console.log(
+          "(create-edit-deck) Deck created successfully, ID:",
+          response,
+        );
         router.push({
           pathname: "/create-edit-card",
           params: { deckId: response, newDeck: 1 },
         });
       } else {
-        console.error("Failed to create deck");
+        console.error("(create-edit-deck) Failed to create deck");
       }
     } catch (error) {
-      console.error("Error fetching decks:", error);
+      console.error("(create-edit-deck) Error fetching deck:", error);
+    }
+  };
+
+  const _updateDeck = async () => {
+    try {
+      const response: any = await UpdateDeck(
+        deckInfo.id,
+        deckInfo.name,
+        currentColorClass,
+        deckInfo.icon,
+      );
+      if (response?.changes != 0) {
+        console.log(
+          "(create-edit-deck) Deck updated successfully, ID:",
+          response,
+        );
+        router.push({
+          pathname: "/decks/deck-details",
+          params: { deckId: deckInfo.id },
+        });
+      } else {
+        console.error(
+          "(create-edit-deck) Failed to update deck, rows changed: ",
+          response?.changes,
+        );
+      }
+    } catch (error) {
+      console.error("(create-edit-deck) Error fetching deck:", error);
     }
   };
 
   useEffect(() => {
-    if (route.params?.triggerFunction) {
-      _createDeck();
+    if (route.params?.deckInfo) {
+      const parsed = JSON.parse(route.params.deckInfo as string);
+      for (let i = 0; i < ColorsOptions.length; i++) {
+        if (deckColorClasses[ColorsOptions[i]] === parsed.color) {
+          setDeckInfo({ ...parsed, color: ColorsOptions[i] });
+          break;
+        }
+      }
     }
+    if (route.params?.triggerFunction)
+      deckInfo.id ? _updateDeck() : _createDeck();
   }, [route.params]);
 
   return (
@@ -165,8 +202,10 @@ export default function CreateDeckModal() {
               <ColorOption
                 key={color}
                 color={color}
-                selected={deckInfo.color === index}
-                onPress={() => setDeckInfo({ ...deckInfo, color: index })}
+                selected={ColorsOptions.indexOf(deckInfo.color) === index}
+                onPress={() =>
+                  setDeckInfo({ ...deckInfo, color: ColorsOptions[index] })
+                }
               />
             ))}
           </View>
