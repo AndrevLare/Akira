@@ -145,7 +145,13 @@ export default function DeckDetails() {
         ) : (
           filteredCards.map((card, index) => (
             <View key={card.id}>
-              <Card front={card.front} back={card.back} status={card.status} />
+              <Card
+                front={card.front}
+                back={card.back}
+                status={card.status}
+                id={card.id}
+                deck={deck}
+              />
               {index < filteredCards.length - 1 && (
                 <View className="mx-[2rem] my-[1.5rem] border-[0.75px] border-akira-darkPaper dark:border-akira-boxDarkBorder" />
               )}
@@ -208,13 +214,33 @@ function Card({
   front,
   back,
   status,
+  id,
+  deck,
 }: {
   front: string;
   back: string;
   status: number;
+  id: number;
+  deck: DeckInfo;
 }) {
+  const router = useRouter();
+
+  const editCard = () => {
+    router.push({
+      pathname: "/create-edit-card",
+      params: {
+        deckId: deck.id,
+        newDeck: deck.card_count === 0 ? 1 : 0,
+        cardInfo: JSON.stringify({ front, back, id }),
+      },
+    });
+  };
+
   return (
-    <Pressable className="flex-row items-center mx-[2rem] gap-1">
+    <Pressable
+      className="flex-row items-center mx-[2rem] gap-1"
+      onPress={editCard}
+    >
       <View className={`${getStatusColor(status)} w-4 h-4 rounded-full mr-4`} />
       <Text
         className="text-akira-ink dark:text-akira-paper text-[5vw] w-[30%]"
@@ -226,6 +252,7 @@ function Card({
       <Text
         className="text-akira-darkText dark:text-akira-darkPaper text-[3vw] flex-1"
         numberOfLines={1}
+        variant="display"
       >
         {back}
       </Text>

@@ -23,4 +23,21 @@ const AkiraButton = ({ children, onPress, ...props }: ContainerProps) => {
   );
 };
 
+const AkiraRedButton = ({ children, onPress, ...props }: ContainerProps) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      className={clsx(
+        "bg-akira-red rounded-2xl items-center justify-center mx-[2rem] p-[1.25rem] flex-row gap-[1rem]",
+        props.className,
+      )}
+      {...props}
+    >
+      {children}
+    </TouchableOpacity>
+  );
+};
+
 export default AkiraButton;
+export { AkiraRedButton };

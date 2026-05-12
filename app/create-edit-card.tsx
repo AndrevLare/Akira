@@ -5,12 +5,14 @@ import { useColorScheme } from "nativewind";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, Pressable, ScrollView, View } from "react-native";
 import { InputText } from "@/components/global/Text";
-
-import { createCard } from "@/SRC/database/db_cards";
+import { CardInfo } from "@/SRC/Types/types";
+import { createCard, updateCard, deleteCard } from "@/SRC/database/db_cards";
 import AkiraButton from "@/components/global/Button";
+import { AkiraRedButton } from "@/components/global/Button";
 import { FullArrowRight } from "@/components/global/icons";
 
 interface RouteParams {
+  cardInfo?: string;
   triggerFunction?: boolean;
 }
 
@@ -24,6 +26,18 @@ export default function CreateEditCard() {
 
   const router = useRouter();
   const route = useRoute<RouteProp<{ params: RouteParams }>>();
+
+  const [showingFront, setShowingFront] = useState(true);
+  const position = useRef(new Animated.Value(0)).current;
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+
+  // Card info
+  const [frontText, setFrontText] = useState("");
+  const [backText, setBackText] = useState("");
+  const [id, setId] = useState<number>(-1);
+
+  const [delayedShowingFront, setDelayedShowingFront] = useState(showingFront);
 
   const _createCard = async () => {
     try {
@@ -42,21 +56,67 @@ export default function CreateEditCard() {
     }
   };
 
+  const _updateCard = async () => {
+    try {
+      const response = await updateCard(
+        id,
+        frontText,
+        backText,
+        parseInt(deckId as string),
+      );
+
+      if (response && typeof response === "number") {
+        console.log("Tarjeta actualizada con ID:", response);
+        setNewDeck(false);
+      }
+    } catch (error) {
+      console.error("Error al actualizar la tarjeta:", error);
+    }
+  };
+
+  const _deleteCard = async () => {
+    try {
+      const response = await deleteCard(id);
+
+      if (response) {
+        console.log("Tarjeta eliminada con ID:", id);
+        setNewDeck(false);
+      }
+    } catch (error) {
+      console.error("Error al eliminar la tarjeta:", error);
+    }
+  };
+
   useEffect(() => {
-    if (route.params?.triggerFunction) {
+    if (route.params?.cardInfo) {
+      console.log(
+        "(create-edit-card) Editing card with info:",
+        route.params.cardInfo,
+      );
+      const { front, back, id } = JSON.parse(route.params.cardInfo);
+      setFrontText(front);
+      setBackText(back);
+      setId(id);
+    }
+
+    if (route.params?.triggerFunction && id == -1) {
       console.log("(create-edit-card) Función disparada desde el header");
       if (frontText && backText) _createCard();
       router.push({
         pathname: "/decks/deck-details",
         params: { deckId: deckId.toString() },
       });
+    } else if (route.params?.triggerFunction && id != -1) {
+      console.log(
+        "(create-edit-card) Función de actualización disparada desde el header",
+      );
+      if (frontText && backText) _updateCard();
+      router.push({
+        pathname: "/decks/deck-details",
+        params: { deckId: deckId.toString() },
+      });
     }
   }, [route.params]);
-
-  const [showingFront, setShowingFront] = useState(true);
-  const position = useRef(new Animated.Value(0)).current;
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
 
   const togglePosition = (isFront: boolean) => {
     setShowingFront(isFront);
@@ -105,12 +165,6 @@ export default function CreateEditCard() {
     outputRange: ["180deg", "0deg"],
   });
 
-  // Card info
-  const [frontText, setFrontText] = useState("");
-  const [backText, setBackText] = useState("");
-
-  const [delayedShowingFront, setDelayedShowingFront] = useState(showingFront);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDelayedShowingFront(showingFront);
@@ -130,7 +184,7 @@ export default function CreateEditCard() {
       {/* Header */}
       <View>
         <Text className="text-[3rem] font-light text-akira-ink dark:text-akira-paper font-AK_display">
-          Add your {newDeck ? "first" : ""}card.
+          {id === -1 ? "Add" : "Edit"} your {newDeck ? "first" : ""}card.
         </Text>
         <Text className="text-akira-darkText font-AK_UI text-[1rem]">
           You'll see this on your notifications soon. Or you can do a review
@@ -200,23 +254,39 @@ export default function CreateEditCard() {
           />
         </Animated.View>
       </Animated.View>
-      <AkiraButton
-        onPress={() => {
-          _createCard();
-          setFrontText("");
-          setBackText("");
-          if (!showingFront) {
-            togglePosition(false);
-            flipCard();
-            flipCardInverse();
-          }
-        }}
-      >
-        <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
-          Create another card
-        </Text>
-        <FullArrowRight />
-      </AkiraButton>
+      {id == -1 ? (
+        <AkiraButton
+          onPress={() => {
+            _createCard();
+            setFrontText("");
+            setBackText("");
+            if (!showingFront) {
+              togglePosition(false);
+              flipCard();
+              flipCardInverse();
+            }
+          }}
+        >
+          <Text className="text-akira-paper dark:text-akira-ink font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
+            Create another card
+          </Text>
+          <FullArrowRight />
+        </AkiraButton>
+      ) : (
+        <AkiraRedButton
+          onPress={() => {
+            _deleteCard();
+            router.push({
+              pathname: "/decks/deck-details",
+              params: { deckId: deckId.toString() },
+            });
+          }}
+        >
+          <Text className="text-akira-paper font-AK_UI font-semibold tracking-widest text-[4.5vw] mb-[2px]">
+            Delete card
+          </Text>
+        </AkiraRedButton>
+      )}
     </ScrollView>
   );
 }

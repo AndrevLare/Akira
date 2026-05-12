@@ -17,3 +17,38 @@ export const createCard = async (
     throw error;
   }
 };
+
+export const updateCard = async (
+  id: number,
+  front: string,
+  back: string,
+  deck_id: number,
+) => {
+  const query = /*sql*/ `
+    UPDATE card SET front = ?, back = ?, deck_id = ? WHERE id = ?
+  `;
+  try {
+    const response = await (
+      await db
+    ).runAsync(query, [front, back, deck_id, id]);
+    console.log("Tarjeta actualizada exitosamente.");
+    return response; // Devuelve el resultado de la actualización
+  } catch (error) {
+    console.error("Error al actualizar la tarjeta:", error);
+    throw error;
+  }
+};
+
+export const deleteCard = async (id: number) => {
+  const query = /*sql*/ `
+    DELETE FROM card WHERE id = ?
+  `;
+  try {
+    const response = await (await db).runAsync(query, [id]);
+    console.log("Tarjeta eliminada exitosamente.");
+    return response; // Devuelve el resultado de la eliminación
+  } catch (error) {
+    console.error("Error al eliminar la tarjeta:", error);
+    throw error;
+  }
+};
