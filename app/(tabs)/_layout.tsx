@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Home, Decks } from "@/components/global/icons";
+import { Home, Decks, Settings } from "@/components/global/icons";
 import { useColorScheme } from "nativewind";
 
 export default function TabLayout() {
@@ -35,6 +35,15 @@ export default function TabLayout() {
         options={{
           title: "Decks",
           tabBarIcon: ({ size, color }) => <Decks size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="Settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ size, color }) => (
+            <Settings size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

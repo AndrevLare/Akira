@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useColorScheme } from "nativewind";
-import Svg, { Path } from "react-native-svg";
+import Svg, { SvgProps, Defs, G, Path } from "react-native-svg";
 
 // Definimos una interfaz para las props (opcional pero recomendado en TS)
 interface IconProps {
@@ -306,6 +306,130 @@ const Add = ({ size = 20, ...props }: IconProps) => {
     </Svg>
   );
 };
+
+const Settings = ({ size = 20, color, ...props }: IconProps) => {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 256 256" {...props}>
+      <Defs />
+      <G>
+        <Path
+          d="M 48.000002,16 H 208 c 17.728,0 32,14.272 32,32 v 160 c 0,17.728 -14.272,32 -32,32 H 48.000002 c -17.728,0 -32,-14.272 -32,-32 V 48 c 0,-17.728 14.272,-32 32,-32 z"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="M 64.000006,64.000001 H 79.999993"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          transform="rotate(90)"
+          d="m 79.999996,-96.000015 a 16,16 0 0 1 -16,16 16,16 0 0 1 -16,-16 16,16 0 0 1 16,-16.000005 16,16 0 0 1 16,16.000005 z"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="m 112.00001,64.000353 79.99997,-3.52e-4"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="M 191.99998,128 H 176"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          transform="matrix(0,1,1,0,0,0)"
+          d="m 144,159.99997 a 16,16 0 0 1 -16,16 16,16 0 0 1 -16,-16 16,16 0 0 1 16,-16 16,16 0 0 1 16,16 z"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="M 143.99998,128.00035 64.000006,128"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="M 64.000006,192.00001 H 79.999993"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          transform="rotate(90)"
+          d="m 208,-96.000015 a 16,16 0 0 1 -16,16 16,16 0 0 1 -16,-16 16,16 0 0 1 16,-16.000005 16,16 0 0 1 16,16.000005 z"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+        <Path
+          d="m 112.00001,192.00036 79.99997,-3.5e-4"
+          fill="none"
+          stroke={color || "#000000"}
+          strokeWidth={16}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeMiterlimit={4}
+          strokeDasharray="none"
+          strokeOpacity={1}
+        />
+      </G>
+    </Svg>
+  );
+};
+
 export {
   Fire,
   Fire_2,
@@ -324,4 +448,5 @@ export {
   Add,
   Export,
   Archive,
+  Settings,
 };

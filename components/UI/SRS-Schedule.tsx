@@ -1,7 +1,7 @@
 import { Dimensions, View } from "react-native";
 import { Text } from "@/components/global/Text";
 
-import { CardInfo } from "@/app/decks/deck-details";
+import { CardInfo } from "@/SRC/Types/types";
 import { useEffect, useState } from "react";
 
 const screenWidth = Dimensions.get("window").width;

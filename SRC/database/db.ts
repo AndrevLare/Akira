@@ -46,7 +46,7 @@ export const createTables = async () => {
   );
   
   CREATE TABLE IF NOT EXISTS srs_settings (
-    daily_notifications INTEGER DEFAULT 10, 
+    daily_notifications INTEGER DEFAULT 10,
     daily_new_cards INTEGER DEFAULT 10,
     daily_cards_limit INTEGER DEFAULT 100
   );
@@ -55,7 +55,18 @@ export const createTables = async () => {
     key TEXT PRIMARY KEY, -- El nombre del ajuste (ej: 'dark_mode')
     value TEXT NOT NULL    -- El valor (ej: 'true', 'english', '20:00')
   );
-  `;
+  
+  CREATE TABLE IF NOT EXISTS user_data (
+    user_id TEXT NOT NULL,
+    name TEXT,
+    email TEXT,
+    color, TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    plan TEXT DEFAULT 'free',
+    PRIMARY KEY (user_id)
+
+  );
+`;
 
   try {
     await (await db).execAsync(query);

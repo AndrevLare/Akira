@@ -18,3 +18,12 @@ export interface CardInfo {
   status: number;
   deck_id: number;
 }
+
+export interface UserInfo {
+  id: number;
+  name: string;
+  color: string;
+  email: string;
+  created_at: string;
+  plan: string;
+}

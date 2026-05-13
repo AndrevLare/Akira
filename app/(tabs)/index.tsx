@@ -1,18 +1,11 @@
 import { useWindowDimensions, View } from "react-native";
 import { initialWindowMetrics } from "react-native-safe-area-context";
 
-import {
-  ArrowRight,
-  Fire,
-  Fire_2,
-  FullArrowRight,
-} from "@/components/global/icons";
+import { Fire_2, FullArrowRight } from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
 import CircularProgress from "@/components/UI/ProgressBar";
 import ThemeToggle from "@/components/UI/ThemeToggle";
 import AkiraButton from "@/components/global/Button";
-
-import { Link } from "expo-router";
 
 import { useState, useMemo } from "react";
 import DecksContainer from "@/components/UI/index/DecksContainer";
