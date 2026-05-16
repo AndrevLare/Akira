@@ -48,8 +48,7 @@
       "reactCompiler": true
     },
     "androidStatusBar": {
-      "translucent": true,
-      "backgroundColor": "transparent"
+      "hidden": true
     },
     "extra": {
       "router": {},

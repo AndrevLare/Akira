@@ -120,6 +120,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar hidden={true} />
       <ThemeProvider
         value={colorScheme === "dark" ? DarkThemeCustom : LightTheme}
       >

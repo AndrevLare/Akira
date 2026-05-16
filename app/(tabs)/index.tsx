@@ -98,7 +98,6 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <ThemeToggle className="absolute top-[54px] right-[32px]" />
         {streak > 0 && (
           <View className="mx-[2rem] mt-[1.5rem] rounded-3xl overflow-hidden">
             <Gradient>

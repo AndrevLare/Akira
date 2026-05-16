@@ -12,7 +12,8 @@ export const createTables = async () => {
     name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     color TEXT DEFAULT '#FFFFFF',
-    icon TEXT CHECK(length(icon) <= 2) DEFAULT 'A'
+    icon TEXT CHECK(length(icon) <= 2) DEFAULT 'A',
+    status TEXT DEFAULT 'active' -- 'active', 'archived', 'deleted'
   );
 
   CREATE TABLE IF NOT EXISTS card (
@@ -48,7 +49,10 @@ export const createTables = async () => {
   CREATE TABLE IF NOT EXISTS srs_settings (
     daily_notifications INTEGER DEFAULT 10,
     daily_new_cards INTEGER DEFAULT 10,
-    daily_cards_limit INTEGER DEFAULT 100
+    daily_cards_limit INTEGER DEFAULT 100,
+    algorithm TEXT DEFAULT 'SM-2', -- Por si queremos implementar diferentes algoritmos en el futuro
+    order INTEGER DEFAULT 0 -- 0 Mixed / 1 New cards first / 2 Due first
+
   );
 
   CREATE TABLE IF NOT EXISTS settings (

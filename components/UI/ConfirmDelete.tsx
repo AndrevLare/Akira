@@ -1,7 +1,7 @@
 import { Modal, Pressable, View } from "react-native";
 import { useState } from "react";
 import { Text } from "@/components/global/Text";
-import { Deck } from "@/components/UI/index/DecksContainer";
+import { DeckInfo as Deck } from "@/SRC/Types/types";
 import { BlurView } from "expo-blur";
 import { TrashCan } from "../global/icons";
 
