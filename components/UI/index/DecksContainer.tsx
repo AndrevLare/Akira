@@ -15,9 +15,11 @@ import { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeab
 import { DeckInfo as Deck } from "@/SRC/Types/types";
 
 export default function DecksContainer({
+  showArchive = false,
   showInfo = "YOUR DECKS",
   showLimitedCards = 0,
 }: {
+  showArchive?: boolean;
   showInfo?: string;
   showLimitedCards?: number;
 }) {
@@ -29,7 +31,13 @@ export default function DecksContainer({
   const fetchDecks = async () => {
     try {
       const allDecks: Deck[] = await GetAllDecks();
-      setDecks(allDecks.sort((a, b) => b.review_debt - a.review_debt));
+      let filteredDecks = allDecks;
+      if (showArchive === false) {
+        filteredDecks = allDecks.filter((d) => d.status !== "archived");
+      } else {
+        filteredDecks = allDecks.filter((d) => d.status === "archived");
+      }
+      setDecks(filteredDecks.sort((a, b) => b.review_debt - a.review_debt));
     } catch (error) {
       console.error("Error fetching decks:", error);
     }
@@ -81,8 +89,10 @@ export default function DecksContainer({
 
       {decks.length === 0 ? (
         <View className="justify-center items-center py-4">
-          <Text className="text-akira-darkText font-AK_data text-[4vw] text-center">
-            You haven't created any decks yet.
+          <Text className="text-akira-darkText font-AK_data text-[3vw] text-center">
+            {showArchive
+              ? "No archived decks yet. Archive old decks to keep your workspace tidy!"
+              : "No decks found. Create a new deck to start learning!"}
           </Text>
         </View>
       ) : (

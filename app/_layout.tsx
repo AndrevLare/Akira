@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 
 import { createTables } from "@/SRC/database/db";
+import { getSettingsSet } from "@/SRC/database/db_settings";
 
 import { AppState, Appearance, Pressable } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
@@ -22,6 +23,7 @@ import { BackIcon, Dots } from "@/components/global/icons";
 
 import { useColorScheme } from "nativewind";
 import { useEffect, useLayoutEffect } from "react";
+import { Settings } from "@/SRC/Types/types";
 
 // Evita que la pantalla de carga se oculte antes de tiempo
 SplashScreen.preventAutoHideAsync();
@@ -89,7 +91,14 @@ export default function RootLayout() {
   // Re-enable only once NativeWind v4 + new arch re-render bug is resolved.
 
   useEffect(() => {
-    createTables();
+    const setUp = async () => {
+      await createTables();
+      const settings: Settings = (await getSettingsSet("settings")) as Settings;
+      // Si hay un tema guardado, úsalo. Si no, usa el tema del sistema o "light" como fallback.
+      const savedTheme = settings.dark_mode === 1 ? "dark" : "light";
+      setColorScheme(savedTheme);
+    };
+    setUp();
   }, []);
 
   const hideNavBar = async () => {

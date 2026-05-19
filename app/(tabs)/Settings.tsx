@@ -4,10 +4,12 @@ import { initialWindowMetrics } from "react-native-safe-area-context";
 import {
   UserInfo,
   SRS_Settings,
-  Settings as SettingsIcon,
+  Settings as SettingsType,
+  Notification_Settings,
 } from "@/SRC/Types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Archive,
   ArrowRight,
   Bell,
   Clock,
@@ -19,6 +21,7 @@ import {
 import { useColorScheme } from "nativewind";
 import { Switch } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import { getSettingsSet, updateSettingsSet } from "@/SRC/database/db_settings";
 
 export default function Settings() {
   const { width, height } = useWindowDimensions();
@@ -27,31 +30,51 @@ export default function Settings() {
 
   const { colorScheme, toggleColorScheme } = useColorScheme();
 
-  const [userInfo, setUserInfo] = useState<UserInfo>({
-    id: 0,
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    created_at: "19/04/2026",
-    plan: "Free",
-    color: "#69737d",
-  });
+  const [userInfo, setUserInfo] = useState<UserInfo>();
 
-  const [srsSettings, setSRS_Settings] = useState<SRS_Settings>({
-    daily_notifications: 10,
-    daily_new_cards: 5,
-    daily_cards_limit: 30,
-    algorithm: "SM-2",
-    order: 0,
-  });
+  const [appSettings, setAppSettings] = useState<SettingsType>();
 
-  const [appSettings, setAppSettings] = useState<SettingsIcon[]>([
-    { key: "NotificationsStart", value: "08:00" },
-    { key: "NotificationsEnd", value: "20:00" },
-    { key: "DarkMode", value: "true" },
-    { key: "Haptics", value: "true" },
-    { key: "Sounds", value: "true" },
-  ]);
+  const [notificationsSettings, setNotificationsSettings] =
+    useState<Notification_Settings>();
 
+  const [srsSettings, setSRS_Settings] = useState<SRS_Settings>();
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const _userInfo = await getSettingsSet("user_data");
+      const _appSettings = await getSettingsSet("settings");
+      const _notificationsSettings = await getSettingsSet(
+        "notification_settings",
+      );
+      const _srsSettings = await getSettingsSet("srs_settings");
+
+      if (_userInfo) setUserInfo(_userInfo as UserInfo);
+      if (_appSettings) setAppSettings(_appSettings as SettingsType);
+      if (_notificationsSettings)
+        setNotificationsSettings(
+          _notificationsSettings as Notification_Settings,
+        );
+      if (_srsSettings) setSRS_Settings(_srsSettings as SRS_Settings);
+    };
+
+    loadSettings();
+  }, []);
+
+  const setSetting = async (settingsTable: string, value: any) => {
+    try {
+      await updateSettingsSet(settingsTable, value);
+    } catch (error) {
+      console.error("Error updating setting:", error);
+    }
+  };
+
+  if (!userInfo || !appSettings || !notificationsSettings || !srsSettings) {
+    return (
+      <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG items-center justify-center">
+        <Text className="text-akira-darkText font-AK_data">Loading...</Text>
+      </View>
+    );
+  }
   return (
     <ScrollView className="flex-1">
       <View
@@ -133,7 +156,14 @@ export default function Settings() {
           {/* Separador */}
           <View className="border-b border-akira-boxBorder dark:border-akira-boxDarkBorder w-full" />
 
-          <Pressable className="flex-row gap-[1rem] items-center">
+          <Pressable
+            className="flex-row gap-[1rem] items-center"
+            onPress={() =>
+              router.push({
+                pathname: "/settings/Notification-Settings",
+              })
+            }
+          >
             <View className="bg-akira-lightGrey dark:bg-akira-darkGrey rounded-2xl p-3">
               <Bell size={20} />
             </View>
@@ -142,8 +172,8 @@ export default function Settings() {
                 Notifications
               </Text>
               <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
-                {appSettings.find((s) => s.key === "NotificationsStart")?.value}{" "}
-                - {appSettings.find((s) => s.key === "NotificationsEnd")?.value}
+                {notificationsSettings.from_time} -{" "}
+                {notificationsSettings.to_time}
               </Text>
             </View>
             <View className="ml-auto items-center justify-center">
@@ -160,7 +190,12 @@ export default function Settings() {
         <View className="flex bg-akira-pureWhite dark:bg-akira-lightDark p-5 rounded-3xl border border-akira-boxBorder dark:border-akira-boxDarkBorder shadow-sm gap-[1rem] ">
           <Pressable
             className="flex-row gap-[1rem] items-center"
-            onPress={toggleColorScheme}
+            onPress={() => {
+              setSetting("settings", {
+                dark_mode: colorScheme === "dark" ? 0 : 1,
+              });
+              toggleColorScheme();
+            }}
           >
             <View className="bg-akira-lightGrey dark:bg-akira-darkGrey rounded-2xl p-3">
               <Theme size={20} />
@@ -199,18 +234,14 @@ export default function Settings() {
             </View>
             <View className="ml-auto items-center justify-center">
               <Switch
-                value={
-                  appSettings.find((s) => s.key === "Haptics")?.value === "true"
-                }
-                onValueChange={(val) =>
-                  setAppSettings((prev) => {
-                    const newSettings = prev.map((s) =>
-                      s.key === "Haptics" ? { ...s, value: val.toString() } : s,
-                    );
-                    return newSettings;
-                  })
-                }
-                trackColor={{ false: "#8a8a8a", true: "#7cb342" }}
+                value={appSettings.haptics === 1}
+                onValueChange={(val) => {
+                  setSetting("settings", { haptics: val === true ? 1 : 0 });
+                  setAppSettings((prev) =>
+                    prev ? { ...prev, haptics: val === true ? 1 : 0 } : prev,
+                  );
+                }}
+                trackColor={{ false: "#8a8a8a", true: "#83c575" }}
                 thumbColor="#f4f2ed"
               />
             </View>
@@ -233,27 +264,51 @@ export default function Settings() {
             </View>
             <View className="ml-auto items-center justify-center">
               <Switch
-                value={
-                  appSettings.find((s) => s.key === "Sounds")?.value === "true"
-                }
-                onValueChange={(val) =>
-                  setAppSettings((prev) => {
-                    const newSettings = prev.map((s) =>
-                      s.key === "Sounds" ? { ...s, value: val.toString() } : s,
-                    );
-                    return newSettings;
-                  })
-                }
-                trackColor={{ false: "#8a8a8a", true: "#7cb342" }}
+                value={appSettings.sounds === 1}
+                onValueChange={(val) => {
+                  setSetting("settings", { sounds: val === true ? 1 : 0 });
+                  setAppSettings((prev) =>
+                    prev ? { ...prev, sounds: val === true ? 1 : 0 } : prev,
+                  );
+                }}
+                trackColor={{ false: "#8a8a8a", true: "#83c575" }}
                 thumbColor="#f4f2ed"
               />
             </View>
           </Pressable>
         </View>
+
         {/* Section */}
 
         <Text className="text-akira-darkText tracking-widest font-bold font-AK_data text-[2.75vw]">
           REVIEW
+        </Text>
+        <View className="flex bg-akira-pureWhite dark:bg-akira-lightDark p-5 rounded-3xl border border-akira-boxBorder dark:border-akira-boxDarkBorder shadow-sm gap-[1rem] ">
+          <Pressable
+            className="flex-row gap-[1rem] items-center"
+            onPress={() => router.push("/settings/Archive")}
+          >
+            <View className="bg-akira-lightGrey dark:bg-akira-darkGrey rounded-2xl p-3">
+              <Archive size={20} />
+            </View>
+            <View>
+              <Text className="font-semibold text-[4vw] text-akira-ink dark:text-akira-paper">
+                Archived decks
+              </Text>
+              <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
+                {userInfo.archived_decks}
+              </Text>
+            </View>
+            <View className="ml-auto items-center justify-center">
+              <ArrowRight fill="#9f9f9f" />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* Section */}
+
+        <Text className="text-akira-darkText tracking-widest font-bold font-AK_data text-[2.75vw]">
+          ABOUT
         </Text>
         <View className="flex bg-akira-pureWhite dark:bg-akira-lightDark p-5 rounded-3xl border border-akira-boxBorder dark:border-akira-boxDarkBorder shadow-sm gap-[1rem] ">
           <Pressable className="flex-row gap-[1rem] items-center">
@@ -303,7 +358,7 @@ export default function Settings() {
                 </Text>
               </Text>
               <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
-                v0.1.0 · build 2
+                v0.1.0 · build 4
               </Text>
             </View>
             <View className="ml-auto items-center justify-center">

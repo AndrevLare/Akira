@@ -133,3 +133,19 @@ export const UpdateDeck = async (
     throw e;
   }
 };
+
+export const archiveDeck = async (id: number, archive: boolean) => {
+  const query = /*sql*/ `
+    UPDATE deck SET status = ? WHERE id = ?
+    `;
+  try {
+    const database = await db;
+    const newStatus = archive ? "archived" : "active";
+    const result = database.runAsync(query, [newStatus, id]);
+    console.log(`Deck ${id} status updated to: ${newStatus}`);
+    return result;
+  } catch (e) {
+    console.log("(db_decks) Error updating the deck status");
+    throw e;
+  }
+};

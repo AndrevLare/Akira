@@ -10,6 +10,7 @@ import {
   Archive,
 } from "@/components/global/icons";
 import { useRouter } from "expo-router";
+import { archiveDeck } from "@/SRC/database/db_decks";
 
 interface DeckOptionsSheetProps {
   visible: boolean;
@@ -17,54 +18,6 @@ interface DeckOptionsSheetProps {
   onClose: () => void;
   onDelete: () => void;
 }
-
-const OPTIONS = [
-  {
-    icon: <Pencil />,
-    label: "Edit deck",
-    sub: "Name, icon, color",
-    danger: false,
-    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
-      console.log("(DeckOptions) Navigating to edit deck:", deck.name);
-      router.push({
-        pathname: "/create-edit-deck",
-        params: { deckInfo: JSON.stringify(deck) },
-      });
-    },
-  },
-  {
-    icon: <Add />,
-    label: "Add cards",
-    sub: "Bulk import or one-by-one",
-    danger: false,
-    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
-      router.push({
-        pathname: "/create-edit-card",
-        params: { deckId: deck.id, newDeck: deck.card_count === 0 ? 1 : 0 },
-      });
-    },
-  },
-  {
-    icon: <Export />,
-    label: "Export",
-    sub: "Anki / CSV / JSON",
-    danger: false,
-    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {}, // Placeholder, implement as needed
-  },
-  {
-    icon: <Archive />,
-    label: "Archive",
-    sub: "Keep stats, pause reviews",
-    danger: false,
-    onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {}, // Placeholder, implement as needed
-  },
-  {
-    icon: <TrashCan />,
-    label: "Delete deck",
-    sub: "Permanent — confirms next",
-    danger: true,
-  },
-];
 
 export default function DeckOptionsSheet({
   visible,
@@ -95,6 +48,61 @@ export default function DeckOptionsSheet({
   };
 
   if (!deck) return null;
+
+  const isArchived = deck.status === "archived";
+
+  const OPTIONS = [
+    {
+      icon: <Pencil />,
+      label: "Edit deck",
+      sub: "Name, icon, color",
+      danger: false,
+      onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
+        console.log("(DeckOptions) Navigating to edit deck:", deck.name);
+        router.push({
+          pathname: "/create-edit-deck",
+          params: { deckInfo: JSON.stringify(deck) },
+        });
+      },
+    },
+    {
+      icon: <Add />,
+      label: "Add cards",
+      sub: "Bulk import or one-by-one",
+      danger: false,
+      onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
+        router.push({
+          pathname: "/create-edit-card",
+          params: { deckId: deck.id, newDeck: deck.card_count === 0 ? 1 : 0 },
+        });
+      },
+    },
+    {
+      icon: <Export />,
+      label: "Export",
+      sub: "Anki / CSV / JSON",
+      danger: false,
+      onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {}, // Placeholder, implement as needed
+    },
+    {
+      icon: <Archive />,
+      label: isArchived ? "Unarchive" : "Archive",
+      sub: isArchived
+        ? "Restore stats, resume reviews"
+        : "Keep stats, pause reviews",
+      danger: false,
+      onPress: ({ router, deck }: { router: any; deck: DeckInfo }) => {
+        archiveDeck(deck.id, !isArchived);
+        router.replace("/settings/Archive");
+      },
+    },
+    {
+      icon: <TrashCan />,
+      label: "Delete deck",
+      sub: "Permanent — confirms next",
+      danger: true,
+    },
+  ];
 
   return (
     <Modal

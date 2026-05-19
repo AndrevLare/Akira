@@ -98,7 +98,8 @@ export default function DeckDetails() {
             {deck.name || "Untitled Deck"}
           </Text>
           <Text className="text-akira-darkText font-AK_data text-[3.25vw]">
-            {deck.card_count} cards · {deck.review_debt} due
+            {deck.card_count} cards · {deck.review_debt} due ·{" "}
+            {deck.status === "archived" ? "Archived" : "Active"}
           </Text>
         </View>
       </View>
