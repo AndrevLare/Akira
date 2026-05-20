@@ -13,6 +13,7 @@ import Reanimated, {
 import { useRef } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 import { DeckInfo as Deck } from "@/SRC/Types/types";
+import Loading from "@/components/global/Loading";
 
 export default function DecksContainer({
   showArchive = false,
@@ -25,7 +26,7 @@ export default function DecksContainer({
 }) {
   const router = useRouter();
 
-  const [decks, setDecks] = useState<Deck[]>([]);
+  const [decks, setDecks] = useState<Deck[]>();
   const [deckToDelete, setDeckToDelete] = useState<Deck | null>(null);
 
   const fetchDecks = async () => {
@@ -43,6 +44,16 @@ export default function DecksContainer({
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchDecks();
+    }, []),
+  );
+
+  if (!decks) {
+    return <Loading kanji="札" title="Decks" leyend="Reading Decks..." />;
+  }
+
   const handleDelete = (deck: Deck) => {
     setDeckToDelete(deck);
   };
@@ -53,21 +64,13 @@ export default function DecksContainer({
       await deleteDeck(deckToDelete.id);
       setDeckToDelete(null);
       console.log("(DecksContainer) Deck deleted, refreshing list");
-      setDecks((prev) => prev.filter((d) => d.id !== deckToDelete.id));
+      setDecks((prev) =>
+        prev ? prev.filter((d) => d.id !== deckToDelete.id) : [],
+      );
     } catch (error) {
       console.error("(DecksContainer) Error deleting deck:", error);
     }
   };
-
-  useEffect(() => {
-    fetchDecks();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchDecks();
-    }, []),
-  );
 
   return (
     <ScrollView

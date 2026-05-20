@@ -7,13 +7,15 @@ import {
 } from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
 import { Notification_Settings } from "@/SRC/Types/types";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { useColorScheme } from "nativewind";
 import { Switch, View } from "react-native";
 import { Pressable, ScrollView, useWindowDimensions } from "react-native";
 import { initialWindowMetrics } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { getSettingsSet, updateSettingsSet } from "@/SRC/database/db_settings";
+import Loading from "@/components/global/Loading";
 
 export default function NotificationSettings() {
   const { width, height } = useWindowDimensions();
@@ -26,19 +28,41 @@ export default function NotificationSettings() {
   const intervals = [30, 60, 120, 240]; // en minutos
 
   const [notificationSettings, setNotificationSettings] =
-    useState<Notification_Settings>({
-      notifications: 1,
-      from_time: "08:00",
-      to_time: "22:00",
-      minimun_interval: intervals[1],
-      weekend_mode: 0,
-      silent_mode: 0,
-    });
+    useState<Notification_Settings>();
 
-  // Añade este estado:
   const [showPicker, setShowPicker] = useState<"from" | "to" | null>(null);
 
-  // Helper para convertir "HH:MM" a Date
+  useFocusEffect(
+    useCallback(() => {
+      const loadSettings = async () => {
+        const _notificationSettings = await getSettingsSet(
+          "notification_settings",
+        );
+
+        if (_notificationSettings)
+          setNotificationSettings(
+            _notificationSettings as Notification_Settings,
+          );
+      };
+      loadSettings();
+    }, []),
+  );
+
+  const setSetting = async (tableName: string, values: Record<string, any>) => {
+    try {
+      await updateSettingsSet(tableName, values);
+      console.log("(notification settings) Settings saved: ", values);
+    } catch (e) {
+      console.log("(notification settings) Error saving settings: ", e);
+    }
+  };
+
+  if (!notificationSettings) {
+    return (
+      <Loading kanji="設" title="Notifications" leyend="Reading Settings..." />
+    );
+  }
+
   const timeStringToDate = (time: string) => {
     const [hour, minute] = time.split(":").map(Number);
     const date = new Date();
@@ -46,7 +70,6 @@ export default function NotificationSettings() {
     return date;
   };
 
-  // Helper para convertir Date a "HH:MM"
   const dateToTimeString = (date: Date) => {
     return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
   };
@@ -109,11 +132,16 @@ export default function NotificationSettings() {
             <View className="ml-auto items-center justify-center">
               <Switch
                 value={notificationSettings.notifications === 1}
-                onValueChange={(val) =>
-                  setNotificationSettings((prev) => {
-                    return { ...prev, notifications: val === true ? 1 : 0 };
-                  })
-                }
+                onValueChange={(val) => {
+                  setSetting("notification_settings", {
+                    notifications: val === true ? 1 : 0,
+                  });
+                  setNotificationSettings((prev) =>
+                    prev
+                      ? { ...prev, notifications: val === true ? 1 : 0 }
+                      : prev,
+                  );
+                }}
                 trackColor={{ false: "#8a8a8a", true: "#83c575" }}
                 thumbColor="#f4f2ed"
               />
@@ -215,12 +243,15 @@ export default function NotificationSettings() {
                 {["30m", "1h", "2h", "4h"].map((option, index) => (
                   <Pressable
                     key={option}
-                    onPress={() =>
+                    onPress={() => {
                       setNotificationSettings({
                         ...notificationSettings,
                         minimun_interval: intervals[index],
-                      })
-                    }
+                      });
+                      setSetting("notification_settings", {
+                        minimun_interval: intervals[index],
+                      });
+                    }}
                     className={`flex-1 items-center py-2 rounded-xl ${
                       notificationSettings.minimun_interval === intervals[index]
                         ? "bg-akira-pureWhite dark:bg-akira-lightDark"
@@ -261,11 +292,16 @@ export default function NotificationSettings() {
             <View className="ml-auto items-center justify-center">
               <Switch
                 value={notificationSettings.weekend_mode === 1}
-                onValueChange={(val) =>
-                  setNotificationSettings((prev) => {
-                    return { ...prev, weekend_mode: val === true ? 1 : 0 };
-                  })
-                }
+                onValueChange={(val) => {
+                  setSetting("notification_settings", {
+                    weekend_mode: val === true ? 1 : 0,
+                  });
+                  setNotificationSettings((prev) =>
+                    prev
+                      ? { ...prev, weekend_mode: val === true ? 1 : 0 }
+                      : prev,
+                  );
+                }}
                 trackColor={{ false: "#8a8a8a", true: "#83c575" }}
                 thumbColor="#f4f2ed"
               />
@@ -292,12 +328,17 @@ export default function NotificationSettings() {
             </View>
             <View className="ml-auto items-center justify-center">
               <Switch
-                value={notificationSettings.notifications === 1}
-                onValueChange={(val) =>
-                  setNotificationSettings((prev) => {
-                    return { ...prev, notifications: val === true ? 1 : 0 };
-                  })
-                }
+                value={notificationSettings.silent_mode === 1}
+                onValueChange={(val) => {
+                  setSetting("notification_settings", {
+                    silent_mode: val === true ? 1 : 0,
+                  });
+                  setNotificationSettings((prev) =>
+                    prev
+                      ? { ...prev, silent_mode: val === true ? 1 : 0 }
+                      : prev,
+                  );
+                }}
                 trackColor={{ false: "#8a8a8a", true: "#83c575" }}
                 thumbColor="#f4f2ed"
               />
@@ -317,10 +358,17 @@ export default function NotificationSettings() {
             setShowPicker(null);
             if (!date) return;
             const key = showPicker === "from" ? "from_time" : "to_time";
-            setNotificationSettings((prev) => ({
-              ...prev,
+            setSetting("notification_settings", {
               [key]: dateToTimeString(date),
-            }));
+            });
+            setNotificationSettings((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    [key]: dateToTimeString(date),
+                  }
+                : prev,
+            );
           }}
         />
       )}

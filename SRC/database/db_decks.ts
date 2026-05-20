@@ -1,17 +1,23 @@
 import { db } from "./db";
 
 export const createDeck = async (name: string, color: string, icon: string) => {
-  const query = /*sql*/ `
-    INSERT INTO deck (name, color, icon) VALUES (?, ?, ?);
-  `;
-
   try {
     const database = await db;
+    let insertedId = 0;
 
-    const result = await database.runAsync(query, [name, color, icon]);
+    await database.withTransactionAsync(async () => {
+      const result = await database.runAsync(
+        /*sql*/ `INSERT INTO deck (name, color, icon) VALUES (?, ?, ?)`,
+        [name, color, icon],
+      );
+      insertedId = result.lastInsertRowId;
+      await database.runAsync(
+        /*sql*/ `UPDATE user_data SET total_decks = total_decks + 1`,
+      );
+    });
 
-    console.log("(db_decks) Deck creado con ID:", result.lastInsertRowId);
-    return result.lastInsertRowId; // Devuelve el ID del nuevo deck
+    console.log("(db_decks) Deck creado con ID:", insertedId);
+    return insertedId;
   } catch (e) {
     console.error("Error creating the deck:", e);
     throw e;
@@ -19,16 +25,17 @@ export const createDeck = async (name: string, color: string, icon: string) => {
 };
 
 export const deleteDeck = async (id: number) => {
-  const query = /*sql*/ `
-    DELETE FROM deck WHERE id = ?
-    `;
   try {
     const database = await db;
 
-    const result = await database.runAsync(query, [id]);
+    await database.withTransactionAsync(async () => {
+      await database.runAsync(/*sql*/ `DELETE FROM deck WHERE id = ?`, [id]);
+      await database.runAsync(
+        /*sql*/ `UPDATE user_data SET total_decks = total_decks - 1`,
+      );
+    });
 
-    console.log(`Deck ${id} and its card correcly deleted.`);
-    return result.lastInsertRowId;
+    console.log(`Deck ${id} and its cards correctly deleted.`);
   } catch (e) {
     console.error("Error deleting the deck:", e);
     throw e;
@@ -135,15 +142,23 @@ export const UpdateDeck = async (
 };
 
 export const archiveDeck = async (id: number, archive: boolean) => {
-  const query = /*sql*/ `
-    UPDATE deck SET status = ? WHERE id = ?
-    `;
   try {
     const database = await db;
     const newStatus = archive ? "archived" : "active";
-    const result = database.runAsync(query, [newStatus, id]);
+    const delta = archive ? 1 : -1;
+
+    await database.withTransactionAsync(async () => {
+      await database.runAsync(
+        /*sql*/ `UPDATE deck SET status = ? WHERE id = ?`,
+        [newStatus, id],
+      );
+      await database.runAsync(
+        /*sql*/ `UPDATE user_data SET archived_decks = archived_decks + ?`,
+        [delta],
+      );
+    });
+
     console.log(`Deck ${id} status updated to: ${newStatus}`);
-    return result;
   } catch (e) {
     console.log("(db_decks) Error updating the deck status");
     throw e;

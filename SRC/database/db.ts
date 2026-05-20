@@ -90,6 +90,7 @@ export const createTables = async () => {
 
   try {
     //await deleteTable("user_data");
+    //await deleteAllTables();
     await (await db).execAsync(query);
     console.log("Tablas creadas o ya existían.");
   } catch (error) {

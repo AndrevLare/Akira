@@ -19,8 +19,8 @@ const getAkiraFont = (
   // 1. Detección de alfabetos asiáticos
   if (/[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text))
     return "font-AK_kr";
-  if (/[\u3040-\u30ff\u31f0-\u31ff]/.test(text)) return "font-AK_jp";
-  if (/[\u4e00-\u9fff]/.test(text)) return "font-AK_ch";
+  if (/[\u3040-\u30ff\u31f0-\u31ff\u4e00-\u9fff]/.test(text))
+    return "font-AK_jp";
 
   // 2. Mapeo de variantes para Latín/Números
   const fontVariants = {
@@ -43,7 +43,8 @@ export const Text = ({
   className,
   ...props
 }: AkiraTextProps) => {
-  const selectedFont = getAkiraFont(children, variant);
+  const hasExplicitFont = className?.includes("font-");
+  const selectedFont = hasExplicitFont ? "" : getAkiraFont(children, variant);
 
   return (
     <RNText

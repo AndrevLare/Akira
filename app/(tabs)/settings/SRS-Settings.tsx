@@ -1,13 +1,15 @@
 import { BackIcon, Order, Spark, Sum } from "@/components/global/icons";
 import { Text } from "@/components/global/Text";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Pressable, useWindowDimensions } from "react-native";
 import { View, ScrollView } from "react-native";
 import { initialWindowMetrics } from "react-native-safe-area-context";
 import Slider from "@react-native-community/slider";
 import { SRS_Settings } from "@/SRC/Types/types";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useColorScheme } from "nativewind";
+import { getSettingsSet, updateSettingsSet } from "@/SRC/database/db_settings";
+import Loading from "@/components/global/Loading";
 
 export default function SRSSettings() {
   const { width, height } = useWindowDimensions();
@@ -17,13 +19,31 @@ export default function SRSSettings() {
 
   const router = useRouter();
 
-  const [srsSettings, setSRS_Settings] = useState<SRS_Settings>({
-    daily_notifications: 10,
-    daily_new_cards: 5,
-    daily_cards_limit: 30,
-    algorithm: "SM-2",
-    order_type: 0,
-  });
+  const [srsSettings, setSRS_Settings] = useState<SRS_Settings>();
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSettings = async () => {
+        const _srsSettings = await getSettingsSet("srs_settings");
+
+        if (_srsSettings) setSRS_Settings(_srsSettings as SRS_Settings);
+      };
+      loadSettings();
+    }, []),
+  );
+
+  const setSetting = async (values: Record<string, any>) => {
+    try {
+      await updateSettingsSet("srs_settings", values);
+      console.log("(srs settings) Settings saved: ", values);
+    } catch (e) {
+      console.log("(srs settings) Error saving settings: ", e);
+    }
+  };
+
+  if (!srsSettings) {
+    return <Loading kanji="設" title="Reviews" leyend="Reading Settings..." />;
+  }
 
   return (
     <ScrollView className="flex-1">
@@ -75,9 +95,10 @@ export default function SRSSettings() {
                 minimumValue={5}
                 maximumValue={120}
                 value={srsSettings.daily_cards_limit}
-                onValueChange={(val) =>
-                  setSRS_Settings({ ...srsSettings, daily_cards_limit: val })
-                }
+                onValueChange={(val) => {
+                  setSRS_Settings({ ...srsSettings, daily_cards_limit: val });
+                  setSetting({ daily_cards_limit: val });
+                }}
                 step={1} // incrementos
                 minimumTrackTintColor="#83c575" // color izquierda
                 maximumTrackTintColor={
@@ -111,9 +132,10 @@ export default function SRSSettings() {
                 minimumValue={0}
                 maximumValue={30}
                 value={srsSettings.daily_new_cards}
-                onValueChange={(val) =>
-                  setSRS_Settings({ ...srsSettings, daily_new_cards: val })
-                }
+                onValueChange={(val) => {
+                  setSRS_Settings({ ...srsSettings, daily_new_cards: val });
+                  setSetting({ daily_new_cards: val });
+                }}
                 step={1} // incrementos
                 minimumTrackTintColor="#83c575" // color izquierda
                 maximumTrackTintColor={
@@ -151,12 +173,13 @@ export default function SRSSettings() {
                 {["Mixed", "New first", "Due first"].map((option, index) => (
                   <Pressable
                     key={option}
-                    onPress={() =>
+                    onPress={() => {
+                      setSetting({ order_type: index as 0 | 1 | 2 });
                       setSRS_Settings({
                         ...srsSettings,
                         order_type: index as 0 | 1 | 2,
-                      })
-                    }
+                      });
+                    }}
                     className={`flex-1 items-center py-2 rounded-xl ${
                       srsSettings.order_type === index
                         ? "bg-akira-pureWhite dark:bg-akira-lightDark"

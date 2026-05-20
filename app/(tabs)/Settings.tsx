@@ -7,7 +7,7 @@ import {
   Settings as SettingsType,
   Notification_Settings,
 } from "@/SRC/Types/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Archive,
   ArrowRight,
@@ -20,8 +20,9 @@ import {
 } from "@/components/global/icons";
 import { useColorScheme } from "nativewind";
 import { Switch } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { getSettingsSet, updateSettingsSet } from "@/SRC/database/db_settings";
+import Loading from "@/components/global/Loading";
 
 export default function Settings() {
   const { width, height } = useWindowDimensions();
@@ -39,26 +40,28 @@ export default function Settings() {
 
   const [srsSettings, setSRS_Settings] = useState<SRS_Settings>();
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      const _userInfo = await getSettingsSet("user_data");
-      const _appSettings = await getSettingsSet("settings");
-      const _notificationsSettings = await getSettingsSet(
-        "notification_settings",
-      );
-      const _srsSettings = await getSettingsSet("srs_settings");
-
-      if (_userInfo) setUserInfo(_userInfo as UserInfo);
-      if (_appSettings) setAppSettings(_appSettings as SettingsType);
-      if (_notificationsSettings)
-        setNotificationsSettings(
-          _notificationsSettings as Notification_Settings,
+  useFocusEffect(
+    useCallback(() => {
+      const loadSettings = async () => {
+        const _userInfo = await getSettingsSet("user_data");
+        const _appSettings = await getSettingsSet("settings");
+        const _notificationsSettings = await getSettingsSet(
+          "notification_settings",
         );
-      if (_srsSettings) setSRS_Settings(_srsSettings as SRS_Settings);
-    };
+        const _srsSettings = await getSettingsSet("srs_settings");
 
-    loadSettings();
-  }, []);
+        if (_userInfo) setUserInfo(_userInfo as UserInfo);
+        if (_appSettings) setAppSettings(_appSettings as SettingsType);
+        if (_notificationsSettings)
+          setNotificationsSettings(
+            _notificationsSettings as Notification_Settings,
+          );
+        if (_srsSettings) setSRS_Settings(_srsSettings as SRS_Settings);
+      };
+
+      loadSettings();
+    }, []),
+  );
 
   const setSetting = async (settingsTable: string, value: any) => {
     try {
@@ -69,11 +72,7 @@ export default function Settings() {
   };
 
   if (!userInfo || !appSettings || !notificationsSettings || !srsSettings) {
-    return (
-      <View className="flex-1 bg-akira-paper dark:bg-akira-darkBG items-center justify-center">
-        <Text className="text-akira-darkText font-AK_data">Loading...</Text>
-      </View>
-    );
+    return <Loading kanji="設" title="Settings" leyend="Reading Settings..." />;
   }
   return (
     <ScrollView className="flex-1">
@@ -113,9 +112,9 @@ export default function Settings() {
             <Text className="font-semibold text-[4vw] text-akira-ink dark:text-akira-paper">
               {userInfo.name}
             </Text>
-            {/* <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
-              {userInfo.email}
-            </Text> */}
+            <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
+              {/* {userInfo.email} */} {userInfo.total_decks} decks
+            </Text>
           </View>
           <Pressable className="rounded-full px-6 py-3 self-center border border-akira-boxBorder dark:border-akira-boxDarkBorder ml-auto">
             <Text className="text-akira-ink dark:text-akira-paper">Edit</Text>
@@ -144,7 +143,7 @@ export default function Settings() {
                 Reviews & Schedule
               </Text>
               <Text className="text-akira-darkText font-AK_data text-[3vw] tracking-tighter">
-                {srsSettings.daily_notifications} / day ·{" "}
+                {srsSettings.daily_cards_limit} / day ·{" "}
                 {srsSettings.daily_new_cards} new
               </Text>
             </View>

@@ -23,6 +23,7 @@ module.exports = {
           whiteVoid: "#eae9e4",
           lightGrey: "#f2f2f2",
           grey: "#8a8a8a",
+          translucentWhite: "#eae8e3",
           darkGrey: "#2b2b2f",
           ink: "#141414",
           accent: "#7cb342",
